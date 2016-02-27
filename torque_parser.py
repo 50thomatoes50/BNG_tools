@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import re
+import re,os
 
 class TorqueObject():
     def __init__(self,type,name,parent=None):
@@ -34,7 +34,11 @@ def count(obj):
     elif type(obj) == type(TorqueObject(None,None)):
         return counter(obj)
         
-        
+def get_path(mis_path,p_path):
+    if not("levels" in p_path):
+        return os.path.split(mis_path)[0] +"\\"+ p_path #relativ
+    else:
+        return mis_path[0:mis_path.find("levels")] + p_path
 
 def mission_parser(filename, option=False):
     root=[]
@@ -59,11 +63,12 @@ def mission_parser(filename, option=False):
                     
             elif w[0]=="};":
                 level-=1
-                trace.pop()
+                if level >0:
+                    trace.pop()
             else:
                 if option:
                     match = re.search("""(\w+)(\ =\ ")(.+)(";)""", line)
-                    if match:
+                    if match and type(node) == type(TorqueObject(None,None)) :
                         node.add_option(match.group(1),match.group(3))
     return root
 
@@ -78,6 +83,11 @@ def disp(node,i,option=False):
 
 
 if __name__ == '__main__':
+    print get_path("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis","art\\map.prefab")
+    
+    print get_path("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis","levels\\Carmageddon\\art\\map.prefab")
+
+    
     r= mission_parser("map.mis",True)
     disp(r[0],0,True)
     print count(r)
