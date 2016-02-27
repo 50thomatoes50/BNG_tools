@@ -1,2 +1,4 @@
 *.komodoproject
 *.mis
+*.pyc
+report_*.html

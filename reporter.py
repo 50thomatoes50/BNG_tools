@@ -30,11 +30,11 @@ indice = 0
 def child_tree(tree,parent=None):
     global the_tree, indice
     id_p=""
-    if tree.name == "":
+    if tree.type == "TSStatic":
+        id_p = "%s(%s)"%(tree.type,os.path.split(tree.option["shapeName"])[1])
+    elif tree.name == "":
         id_p = "%s(No_name_%i)"%(tree.type,indice)
         indice +=1
-#    elif tree.type == "TSStatic":
-#        id_p = "%s(%s)"%(tree.type,tree.name)
     else:
         id_p = "%s(%s)"%(tree.type,tree.name)
         
@@ -54,7 +54,7 @@ def make_tree(tree):
 
 def make_report(fname):
     try:
-        r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname)
+        r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname,True)
     except:
         print "parse error"
         return
