@@ -12,6 +12,7 @@ For now start `reporter.py`
 Files are only loaded from `Documents\BeamNG.drive\mods\unpacked\` and are open as Read-only to prevent any unwanted glitch
 
 ## Roadmap
+  - [ ] Better GUI (Menu, configuration..)
   - [ ] Add more charts
   - [ ] Count materials
   - [x] Import prefab

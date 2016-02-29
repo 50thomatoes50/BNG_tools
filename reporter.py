@@ -28,6 +28,25 @@ the_tree = []
 indice = 0
 realcounter = 0
 
+def child_doublon(childs,mis_path,parent):
+    global the_tree,indice,realcounter
+    done = []
+    for c in childs:
+        if c.type != 'TSStatic':
+            child_tree(c,mis_path,parent)
+        elif c.option["shapeName"] not in done:
+            nb=0
+            for ca in childs:
+                if c.option["shapeName"] == ca.option["shapeName"]:
+                    nb+=1
+                    realcounter+=1
+            
+            name = "%s(%s)"%(c.type,os.path.split(c.option["shapeName"])[1])
+            id_p = name
+            the_tree.append( {"id":id_p,"name":name,"parent":parent,"value":nb} )
+            done.append(c.option["shapeName"])
+            
+
 def child_tree(tree,mis_path,parent=None):
     global the_tree, indice,realcounter
     realcounter+=1
@@ -54,14 +73,17 @@ def child_tree(tree,mis_path,parent=None):
     else:
         the_tree.append( {"id":id_p,"name":name,"parent":parent,"value":len(tree.child)+1} )
         
-    for c in tree.child:
-        child_tree(c,mis_path,id_p)
-        
+    if tree.type == "Prefab":
+            child_doublon(tree.child,mis_path,id_p)
+    else:
+        for c in tree.child:
+            child_tree(c,mis_path,id_p)
 
 
 def make_tree(tree,mis_path):
     child_tree(tree,mis_path)
-    return json.dumps(the_tree, indent=4)
+    #return json.dumps(the_tree, indent=4) # debugging data
+    return json.dumps(the_tree) #Production
 
 def make_report(fname):
     try:
@@ -91,7 +113,7 @@ def make_report(fname):
     webbrowser.open(reportName)
     os.system("pause")
     
-    torque_parser.disp(r[0],0,False)
+    #torque_parser.disp(r[0],0,False)
     
 
 if __name__ == '__main__':
