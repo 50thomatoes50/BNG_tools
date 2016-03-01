@@ -2,3 +2,4 @@
 *.mis
 *.pyc
 report_*.html
+_version.py

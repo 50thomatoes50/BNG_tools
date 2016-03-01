@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys,os,platform,datetime ,json,webbrowser
-import gui,torque_parser
+from threading import Thread
+import gui,torque_parser,_version
 try:
     import Tkinter
 except:
@@ -86,34 +87,88 @@ def make_tree(tree,mis_path):
     return json.dumps(the_tree) #Production
 
 def make_report(fname):
+    global report_step
     try:
         r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname,True)
     except:
         print "parse error"
         return
+    report_step=1
     objnb = torque_parser.count(r)
     
     tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname)
     now = datetime.datetime.now()
     reportName = "report_"+os.path.split(fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
+    
+    report_step = 2
     with open("theme\\default\\index.html", "r") as s:
         with open(reportName, "w") as d:
             for l in s:
+                tmp = l
                 if "%map_name%" in l:
-                    d.write(l.replace("%map_name%",fname))
-                elif "%object_count%" in l:
-                    d.write(l.replace("%object_count%",str(realcounter)))
-                elif "%mat_count%" in l:
-                    d.write(l.replace("%mat_count%",str(0)))
-                elif "%tree_data%" in l:
-                    d.write(l.replace("%tree_data%",tree_str))
-                else:
-                    d.write(l)
-                    
+                    tmp = tmp.replace("%map_name%",fname)
+                if "%object_count%" in l:
+                    tmp = tmp.replace("%object_count%",str(realcounter))
+                if "%mat_count%" in l:
+                    tmp = tmp.replace("%mat_count%",str(0))
+                if "%tree_data%" in l:
+                    tmp = tmp.replace("%tree_data%",tree_str)
+                if "%git_hash%" in l:
+                    tmp = tmp.replace("%git_hash%",_version.git_hash_short)
+                if "%hash_long%" in l:
+                    tmp = tmp.replace("%hash_long%",_version.git_hash)
+                if "%version_number%" in l:
+                    tmp = tmp.replace("%version_number%",_version.__version_long__)
+                
+                d.write(tmp)
+    report_step = 3
     webbrowser.open(reportName)
     os.system("pause")
     
-    #torque_parser.disp(r[0],0,False)
+
+class MakeReportThread(Thread):
+
+    def __init__(self, fname):
+        Thread.__init__(self)
+        self.fname=fname
+        self.step=0
+        
+    def run(self):
+        #try:
+        r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname,True)
+        """except:
+            print "parse error"
+            return"""
+        self.step=1
+        objnb = torque_parser.count(r)
+        
+        tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname)
+        now = datetime.datetime.now()
+        reportName = "report_"+os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
+        
+        self.step = 2
+        with open("theme\\default\\index.html", "r") as s:
+            with open(reportName, "w") as d:
+                for l in s:
+                    tmp = l
+                    if "%map_name%" in l:
+                        tmp = tmp.replace("%map_name%",self.fname)
+                    if "%object_count%" in l:
+                        tmp = tmp.replace("%object_count%",str(realcounter))
+                    if "%mat_count%" in l:
+                        tmp = tmp.replace("%mat_count%",str(0))
+                    if "%tree_data%" in l:
+                        tmp = tmp.replace("%tree_data%",tree_str)
+                    if "%git_hash%" in l:
+                        tmp = tmp.replace("%git_hash%",_version.git_hash_short)
+                    if "%hash_long%" in l:
+                        tmp = tmp.replace("%hash_long%",_version.git_hash)
+                    if "%version_number%" in l:
+                        tmp = tmp.replace("%version_number%",_version.__version_long__)
+                    
+                    d.write(tmp)
+        self.step = 3
+        webbrowser.open(reportName)
     
 
 if __name__ == '__main__':
@@ -141,8 +196,12 @@ if __name__ == '__main__':
         sys.exit(0)
     c.destroy()
     print "Mission files selcted :", fichier[c.var], "(",c.var,")"
-    make_report(fichier[c.var])
-    os.system("pause")
+    #make_report(fichier[c.var])
+    #os.system("pause")
+    th = MakeReportThread(fichier[c.var])
+    th.isAlive
+    c = gui.reportWorking(fichier[c.var],th)
+    c.mainloop()
 
     
     
