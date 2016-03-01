@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 
 import Tkinter,ttk,tkMessageBox,tkFont
+from sys import platform
+
+def icon(obj):
+    if platform == 'win32':
+        obj.iconbitmap(r'image\icon.ico',default=r'image\icon.ico')    
+    elif platform == 'linux2':
+        obj.iconphoto(True, PhotoImage(file=os.path.join(program_directory, "image/icon_256.png")))
+    else:
+        obj.iconphoto(True, PhotoImage(file=os.path.join(program_directory, "image/icon_256.png")))
+        print "Unknown OS. Icon may not work"
+    
 
 class choose(Tkinter.Tk):
     def __init__(self,files):
         Tkinter.Tk.__init__(self)
         self.title("Choose the map")
+        icon(self)
         self.var = -1
         self.Combobox = ttk.Combobox(self, state="readonly")
         self.Combobox['values'] = files
@@ -40,6 +52,7 @@ class choose(Tkinter.Tk):
 class reportWorking(Tkinter.Tk):
     def __init__(self,name,th,test=False):
         Tkinter.Tk.__init__(self)
+        icon(self)
         self.t =th
         self.test=test
         self.title("Making report ...")
