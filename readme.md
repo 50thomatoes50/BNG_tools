@@ -1,6 +1,11 @@
-# ![icon](https://raw.githubusercontent.com/50thomatoes50/BNG_tools/master/image/icon_32.png)BeamNG tools ![GNU GPL V2](https://img.shields.io/github/license/50thomatoes50/BNG_tools.svg "GNU GPL V2") ![python-2.7](https://img.shields.io/badge/python-2.7-blue.svg "python 2.7") ![Version-0.0.1](https://img.shields.io/badge/Version-0.0.1-orange.svg "Version-0.0.1") ![Platform win|linux?|macos?](https://img.shields.io/badge/platform-win%20|%20linux%3F%20|%20macos%3F-lightgrey.svg "Platform : win|linux?|macos?")
+# ![icon](https://raw.githubusercontent.com/50thomatoes50/BNG_tools/master/image/icon_32.png)BeamNG tools
+![GNU GPL V2](https://img.shields.io/github/license/50thomatoes50/BNG_tools.svg "GNU GPL V2")
+[![GitHub tag](https://img.shields.io/github/tag/50thomatoes50/BNG_tools.svg?maxAge=2592000)](https://github.com/50thomatoes50/BNG_tools/tags)
+[![GitHub release](https://img.shields.io/github/release/50thomatoes50/BNG_tools.svg?maxAge=2592000)](https://github.com/50thomatoes50/BNG_tools/releases)
+![python-2.7](https://img.shields.io/badge/python-2.7-blue.svg "python 2.7")
+![Platform win|linux?|macos?](https://img.shields.io/badge/platform-win%20|%20linux%3F%20|%20macos%3F-lightgrey.svg "Platform : win|linux?|macos?")
 
-Tools Designed to help moddings in [BeamNG.Drive](http://www.beamng.com)
+Tools Designed to help modding in [BeamNG.Drive](http://www.beamng.com)
 
 ## Warning
 
@@ -19,6 +24,6 @@ Files are only loaded from `Documents\BeamNG.drive\mods\unpacked\` and are open 
   - [ ] Check materials
   - [ ] Make a material editor (to correct duplicate, etc...)
   - [ ] Mod packer (Integrity checker?)
-  - ...
+
 
 Suggestion are welcome.
