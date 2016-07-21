@@ -2,15 +2,67 @@
 
 import Tkinter,ttk,tkMessageBox,tkFont
 from sys import platform
+from PIL import Image, ImageTk
 
 def icon(obj):
     if platform == 'win32':
         obj.iconbitmap(r'image\icon.ico',default=r'image\icon.ico')    
     elif platform == 'linux2':
-        obj.iconphoto(True, PhotoImage(file=os.path.join(program_directory, "image/icon_256.png")))
+        image = Image.open("image/icon_256.png")
+        photo = ImageTk.PhotoImage(image)
+        obj.iconphoto(True, photo)
     else:
-        obj.iconphoto(True, PhotoImage(file=os.path.join(program_directory, "image/icon_256.png")))
+        image = Image.open("image/icon_256.png")
+        photo = ImageTk.PhotoImage(image)
+        obj.iconphoto(True, photo)
         print "Unknown OS. Icon may not work"
+        
+class launcher(Tkinter.Tk):
+    def __init__(self):
+        Tkinter.Tk.__init__(self)
+        self.title("BeamNG Tools.py - Launcher")
+        icon(self)
+        
+        #self.image = Tkinter.PhotoImage(file="image\\icon_256.png")
+        self.img = Image.open("image/icon_256.png")
+        self.img.thumbnail((128,128), Image.ANTIALIAS)
+        self.image= ImageTk.PhotoImage(self.img)
+        self.btn_stat = ttk.Button(self, text="Stats (only map)", image=self.image, compound="top")
+        self.btn_stat.grid(row=0, column=0,padx=5, pady=5)
+        
+        self.btn_chkpack = ttk.Button(self, text="Check mod and pack", state=Tkinter.DISABLED, image=self.image, compound="top")
+        self.btn_chkpack.grid(row=0, column=1,padx=5, pady=5)
+        
+        self.btn_3 = ttk.Button(self, text="3", state=Tkinter.DISABLED, image=self.image, compound="top")
+        self.btn_3.grid(row=1, column=0,padx=5, pady=5)
+        
+        self.btn_4 = ttk.Button(self, text="4", state=Tkinter.DISABLED, image=self.image, compound="top")
+        self.btn_4.grid(row=1, column=1,padx=5, pady=5)
+
+
+class loading_popup(Tkinter.Tk):
+    def __init__(self,title,mode,label):
+        "mode = indeterminate || determinate"
+        Tkinter.Tk.__init__(self)
+        self.title(title)
+        icon(self)
+        self.pbar = ttk.Progressbar(self, mode=mode, length=200)
+        self.pbar.grid(row=0, column=0,padx=5, pady=5)
+        
+        self.lbl = Tkinter.Label(self,text=label)
+        self.lbl.grid(row=1, column=0,padx=5, pady=5)
+        
+    def start(self):
+        self.pbar.start(50)
+        
+    def step(self,i):
+        self.pbar.step(i)
+        
+    def stop(self):
+        self.pbar.stop()
+        
+    def set_lbl(self,txt):
+        self.lbl['test']=txt
     
 
 class choose(Tkinter.Tk):
@@ -85,7 +137,7 @@ class reportWorking(Tkinter.Tk):
         if self.t.step<3 and not self.t.isAlive():
             tkMessageBox.showerror (
             "Error",
-            "Thread quit earlier.\n The report may not exist."
+            "Thread quit earlier.\n The report may not exist.\n"+t.error
             )
             self.destroy()
             return
@@ -111,6 +163,13 @@ class reportWorking(Tkinter.Tk):
             self.after(200,self.refresh)
         
 if __name__ == '__main__':
+    l = launcher()
+    l.mainloop()
+    
+    ld = loading_popup("titre","indeterminate","Texte")
+    ld.start()
+    ld.mainloop()
+    
     c = choose( ("test","test2"))
     c.mainloop()
     print "quit=", c.quit_val
