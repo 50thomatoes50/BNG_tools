@@ -11,8 +11,10 @@ Tools Designed to help modding in [BeamNG.Drive](http://www.beamng.com)
 
 Those programs are in beta. Use at your own risk
 
-## Guide
-For now start `reporter.py`
+## Installation guide
+Clone this repo with GIT (so you need git)
+Run setup.py
+For now, to start the app run `reporter.py` (may change in near futur)
 
 Files are only loaded from `Documents\BeamNG.drive\mods\unpacked\` and are open as Read-only to prevent any unwanted glitch
 
@@ -23,7 +25,7 @@ Files are only loaded from `Documents\BeamNG.drive\mods\unpacked\` and are open 
   - [x] Import prefab
   - [ ] Check materials
   - [ ] Make a material editor (to correct duplicate, etc...)
-  - [ ] Mod packer (Integrity checker?)
+  - [ ] Mod packer (and Integrity checker?)
 
 
 Suggestion are welcome.

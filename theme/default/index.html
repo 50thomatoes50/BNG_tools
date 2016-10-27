@@ -7,7 +7,8 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="">
+    <link rel="icon" type='image/x-icon' href="image/icon.ico">
+    <link rel="icon" type="image/png" href="image/icon_256.png" />
 
     <title>BeamNG map Report</title>
 
@@ -16,9 +17,13 @@
 
     <!-- Custom styles for this template -->
     <link href="theme/default/css/dashboard.css" rel="stylesheet">
+	
+	<link href="theme/default/css/bootstrap-sortable.css" rel="stylesheet">
      
     <script src="theme/default/js/jquery-1.12.1.min.js"></script> 
     <script src="theme/default/js/bootstrap.min.js"></script>
+	
+	<script src="theme/default/js/bootstrap-sortable.js"></script>
       
     <script src="theme/default/Highcharts/js/highcharts.js"></script>
     <script src="theme/default/Highcharts/js/highcharts-more.js"></script>
@@ -79,8 +84,9 @@ function  show(element,toshow){
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <li class="active"><a id="overview-button" href="#">Overview</a></li>
-            <li><a id="object-button" href="#">Object</a></li>
-            <li class="disabled"><a href="#">Material</a></li>
+            <li><a id="object-button" href="#">Objects</a></li>
+            <li class="disabled"><a href="#">Materials</a></li>
+			<li><a id="resources-button" href="#">Resources</a></li>
           </ul>
         </div>
         
@@ -94,6 +100,9 @@ function  show(element,toshow){
     });
 	$("#object-button").click(function() {
 		show($( this ),"#object");
+    });
+	$("#resources-button").click(function() {
+		show($( this ),"#resources");
     });
 	</script>
         
@@ -159,6 +168,9 @@ function  show(element,toshow){
 
     // The speed gauge
     $('#gauge_obj').highcharts(Highcharts.merge(gaugeOptions, {
+        credits: {
+            enabled: false
+        },
         yAxis: {
             min: 0,
             max: 4096,
@@ -170,7 +182,7 @@ function  show(element,toshow){
             text: 'Objects'
         },
         subtitle: {
-            text: 'don\'t include vehicle spawned. Maximum supported is 4096 object'
+            text: 'doesn\'t include vehicle spawned. Maximum supported is 4096 object'
         },
 
         series: [{
@@ -190,6 +202,9 @@ function  show(element,toshow){
 
     // The RPM gauge
     $('#gauge_mat').highcharts(Highcharts.merge(gaugeOptions, {
+        credits: {
+            enabled: false
+        },	
         yAxis: {
             min: 0,
             max: 8192,
@@ -198,7 +213,7 @@ function  show(element,toshow){
             text: 'Materials'
         },
         subtitle: {
-            text: 'Don\'t included BeamNG materials'
+            text: 'doesn\'t included BeamNG materials'
         },
         series: [{
             name: 'Materials',
@@ -221,31 +236,21 @@ function  show(element,toshow){
             </div>
 
           </div>
+		  
+		  <h2>Warning and Errors</h2>
+			<div class="row placeholders">
+			  <div class="table-responsive">
+				<table class="table table-striped sortable">
+				  <thead>
+				  <tbody>
+					%msg_table%
+				  </tbody>
+				</table>
+			  </div>
+          </div>
 
-          <!--
-          <h2 class="sub-header">Section title</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>-->
+          
+
         </div>
       
       	<div id="object" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="display:none;">
@@ -289,6 +294,30 @@ $(function () {
           </div>
 		  
 	</div>
+	
+	
+	        <div id="resources" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="display:none;">
+          <h1 class="page-header">Resources list</h1>
+
+          <div class="row placeholders">
+			  <div class="table-responsive">
+				<table class="table table-striped sortable">
+				  <thead>
+					<tr>
+					  <th>File Name</th>
+					  <th>File location</th>
+					  <th>Object Type</th>
+					  <th>Number of use</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					%obj_table%
+				  </tbody>
+				</table>
+			  </div>
+          </div>
+		  
+	</div>
                 
         <div id="about" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="display:none;">
           <h1 class="page-header">About</h1>
@@ -305,6 +334,7 @@ $(function () {
             Highcharts files are provided and used under the  <a href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 License.</a><br>
             <br>
             Bootstrap files are provided and used under <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE">The MIT License (MIT)</a><br>
+			<a href='https://github.com/drvic10k/bootstrap-sortable'>Bootstrap-sortable</a> free licence ?<br>
             <br>
             The rest of files are under the term of <a href="https://raw.githubusercontent.com/50thomatoes50/BNG_tools/master/LICENSE">GNU GENERAL PUBLIC LICENSE Version 2</a>
           </div>

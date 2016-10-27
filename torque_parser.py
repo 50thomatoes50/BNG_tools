@@ -35,16 +35,48 @@ def count(obj):
         return counter(obj)
         
 def get_path(mis_path,p_path):
+    if os.name is "nt":
+        p_path.replace("/",os.sep)
     if not("levels" in p_path):
         return os.path.split(mis_path)[0] +"\\"+ p_path #relativ
     else:
         return mis_path[0:mis_path.find("levels")] + p_path
-
+    
+def get_filepath(tree):
+    """ Todo: retrieve the file using the object type instead of brute force checking """
+    """if tree.option.has_key("fileName"):
+        return tree.option["fileName"]
+    elif tree.option.has_key("shapeName"):
+        return tree.option["shapeName"]
+    elif tree.option.has_key("texture"):
+        return tree.option["texture"]
+    elif tree.option.has_key("terrainFile"):
+        return tree.option["terrainFile"]
+    elif tree.option.has_key("dataFile"):
+        return tree.option["dataFile"]"""
+    try:
+        if tree.type == "CloudLayer":
+            return tree.option["texture"]
+        elif tree.type == "WaterPlane":
+            return (tree.option["rippleTex"],tree.option["foamTex"],tree.option["depthGradientTex"])
+        elif tree.type == "TerrainBlock":
+            return tree.option["terrainFile"]
+        elif tree.type == "Forest":
+            return tree.option["dataFile"]
+        elif tree.type == "TSStatic":
+            return tree.option["shapeName"]
+    except KeyError:
+        return False
+        
+    return None
+ 
 def mission_parser(filename, option=False):
     root=[]
     trace=[]
     node=0
     level=-1
+    if not os.path.isfile(filename):
+        raise Exception("File is not valid : "+filename)
     with open( filename, "r") as f:
         for line in f:
             w = line.split()

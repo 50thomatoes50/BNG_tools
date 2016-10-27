@@ -28,6 +28,8 @@ def scan_mis(fpath):
 the_tree = []
 indice = 0
 realcounter = 0
+obj_list_used ={}
+msg_list=()
 
 def child_doublon(childs,mis_path,parent):
     global the_tree,indice,realcounter
@@ -38,6 +40,8 @@ def child_doublon(childs,mis_path,parent):
         elif c.option["shapeName"] not in done:
             nb=0
             for ca in childs:
+                if not ca.option.has_key("shapeName"):
+                    continue
                 if c.option["shapeName"] == ca.option["shapeName"]:
                     nb+=1
                     realcounter+=1
@@ -46,6 +50,12 @@ def child_doublon(childs,mis_path,parent):
             id_p = name
             the_tree.append( {"id":id_p,"name":name,"parent":parent,"value":nb} )
             done.append(c.option["shapeName"])
+            
+            fileName = torque_parser.get_filepath(c)
+            if not obj_list_used.has_key(fileName):
+                obj_list_used[fileName] = {"name": c.name, "type":c.type, "nb_used": nb}
+            else:
+                obj_list_used[fileName]["nb_used"] += nb
             
 
 def child_tree(tree,mis_path,parent=None):
@@ -73,15 +83,41 @@ def child_tree(tree,mis_path,parent=None):
         the_tree.append( {"id":id_p,"name":name} )
     else:
         the_tree.append( {"id":id_p,"name":name,"parent":parent,"value":len(tree.child)+1} )
+    
+    fileName = torque_parser.get_filepath(tree)
+    if fileName:
+        if type(fileName) is type(''):
+            if not obj_list_used.has_key(fileName):
+                obj_list_used[fileName] = {"name": tree.name, "type":tree.type, "nb_used": 1}
+            else:
+                obj_list_used[fileName]["nb_used"] += 1
+        elif type(fileName) is tuple:
+            for f in fileName:
+                if not obj_list_used.has_key(f):
+                    obj_list_used[f] = {"name": tree.name, "type":tree.type, "nb_used": 1}
+                else:
+                    obj_list_used[f]["nb_used"] += 1
+        else:
+            print "filename type =="+str(type(fileName))
+    if fileName == False:
+        msg_list.append( ("warning","Object %s(%s) have a missing property"%(tree.name,tree.type)) )
+        
         
     if tree.type == "Prefab":
             child_doublon(tree.child,mis_path,id_p)
     else:
-        for c in tree.child:
-            child_tree(c,mis_path,id_p)
+        if len(tree.child):
+            child_doublon(tree.child,mis_path,id_p)
+        #for c in tree.child:
+            
+    
 
 
 def make_tree(tree,mis_path):
+    #the_tree = []
+    #indice = 0
+    #realcounter = 0
+    obj_list_used =[]
     child_tree(tree,mis_path)
     #return json.dumps(the_tree, indent=4) # debugging data
     return json.dumps(the_tree) #Production
@@ -97,6 +133,16 @@ def make_report(fname):
     objnb = torque_parser.count(r)
     
     tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname)
+    
+    obj_list_used_html = ""
+    for k in obj_list_used.keys():
+        obj_list_used_html += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%i</td></tr>\n"%(k,"_",obj_list_used[k].type,obj_list_used[k]["nb_used"])
+    
+    msg_list_html=""
+    for i in msg_list:
+        msg_list_html += "<tr class='.%s'><td>%s</td><tr>\n"%(i[0],i[1])
+    
+    
     now = datetime.datetime.now()
     reportName = "report_"+os.path.split(fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
     
@@ -143,7 +189,20 @@ class MakeReportThread(Thread):
         objnb = torque_parser.count(r)
         
         tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname)
-        now = datetime.datetime.now()
+        
+        obj_list_used_html = ""
+        for k in obj_list_used.keys():
+            try:
+                os.path.split(k)
+                obj_list_used_html += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%i</td></tr>\n"%(os.path.split(k)[0],os.path.split(k)[1],obj_list_used[k]["type"],obj_list_used[k]["nb_used"])
+            except :
+                print sys.exc_info()
+        
+        msg_list_html=""
+        for i in msg_list:
+            msg_list_html += "<tr class='.%s'><td>%s</td><tr>\n"%(i[0],i[1])
+        
+        now = datetime.datetime.now()      
         reportName = "report_"+os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
         
         self.step = 2
@@ -165,6 +224,11 @@ class MakeReportThread(Thread):
                         tmp = tmp.replace("%hash_long%",_version.git_hash)
                     if "%version_number%" in l:
                         tmp = tmp.replace("%version_number%",_version.__version_long__)
+                    if "%obj_table%" in l:
+                        tmp = tmp.replace("%obj_table%",obj_list_used_html)
+                    if "%msg_table%" in l:
+                        tmp = tmp.replace("%msg_table%",msg_list_html)
+                        
                     
                     d.write(tmp)
         self.step = 3

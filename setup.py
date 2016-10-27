@@ -1,12 +1,23 @@
 #!/usr/bin/env python
-import subprocess
+import subprocess,re
 
 try:
     label = subprocess.check_output(["git", "describe", "--always"])
 except WindowsError:
     raise Exception("Install git")
 
-tags,hotfix,git_hash= label.strip("\n").split("-")
+splited = label.strip('\n').split('-')
+print splited
+
+if len(splited)==1:
+    tags = splited[0]
+    hotfix = "0"
+elif len(splited)>1:
+    tags = splited[0]
+    hotfix = splited[1]
+else:
+    print splited
+    raise Exception("Unknown")
 
 __version__ = tags + "." + hotfix
 
