@@ -7,16 +7,18 @@
 
 Tools Designed to help modding in [BeamNG.Drive](http://www.beamng.com)
 
+Files are only loaded from `Documents\BeamNG.drive\mods\unpacked\` and are open as Read-only to prevent any unwanted glitch
+
 ## Warning
 
 Those programs are in beta. Use at your own risk
 
 ## Installation guide
-Clone this repo with GIT (so you need git)
-Run setup.py
-For now, to start the app run `reporter.py` (may change in near futur)
+- Clone this repo with GIT (so you need git)
 
-Files are only loaded from `Documents\BeamNG.drive\mods\unpacked\` and are open as Read-only to prevent any unwanted glitch
+- Run setup.py
+
+- For now, to start the app run `reporter.py` (may change in near future)
 
 ## Roadmap
   - [ ] Better GUI (Menu, configuration..)
