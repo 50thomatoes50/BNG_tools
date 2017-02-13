@@ -3,3 +3,5 @@
 *.pyc
 report_*.html
 _version.py
+*.btr
+redirect.html

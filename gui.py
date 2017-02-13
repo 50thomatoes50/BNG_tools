@@ -137,7 +137,7 @@ class reportWorking(Tkinter.Tk):
         if self.t.step<3 and not self.t.isAlive():
             tkMessageBox.showerror (
             "Error",
-            "Thread quit earlier.\n The report may not exist.\n"+t.error
+            "Thread quit earlier.\n The report may not exist.\n"+self.t.error
             )
             self.destroy()
             return

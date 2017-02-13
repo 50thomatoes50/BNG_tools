@@ -22,10 +22,10 @@ Those programs are in beta. Use at your own risk
 
 ## Roadmap
   - [ ] Better GUI (Menu, configuration..)
-  - [ ] Add more charts
-  - [ ] Count materials
+  - [x] Add more charts
+  - [x] Count materials
   - [x] Import prefab
-  - [ ] Check materials
+  - [x] Check materials
   - [ ] Make a material editor (to correct duplicate, etc...)
   - [ ] Mod packer (and Integrity checker?)
 

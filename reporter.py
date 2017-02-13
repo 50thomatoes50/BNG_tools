@@ -7,6 +7,37 @@ try:
 except:
     print "Tkinter is missing"
     sys.exit(-1)
+     
+
+class CaseInsensitiveDict(dict):
+    """Basic case insensitive dict with strings only keys."""
+
+    proxy = {}
+
+    def __init__(self, data={}):
+        self.proxy = dict((k.lower(), k) for k in data)
+        for k in data:
+            self[k] = data[k]
+
+    def __contains__(self, k):
+        return k.lower() in self.proxy
+
+    def __delitem__(self, k):
+        key = self.proxy[k.lower()]
+        super(CaseInsensitiveDict, self).__delitem__(key)
+        del self.proxy[k.lower()]
+
+    def __getitem__(self, k):
+        key = self.proxy[k.lower()]
+        return super(CaseInsensitiveDict, self).__getitem__(key)
+
+    def get(self, k, default=None):
+        return self[k] if k in self else default
+
+    def __setitem__(self, k, v):
+        super(CaseInsensitiveDict, self).__setitem__(k, v)
+        self.proxy[k.lower()] = k
+
     
 debug = True
     
@@ -28,8 +59,8 @@ def scan_mis(fpath):
 the_tree = []
 indice = 0
 realcounter = 0
-obj_list_used ={}
-msg_list=()
+obj_list_used = CaseInsensitiveDict()
+msg_list=[]
 
 def child_doublon(childs,mis_path,parent):
     global the_tree,indice,realcounter
@@ -52,10 +83,11 @@ def child_doublon(childs,mis_path,parent):
             done.append(c.option["shapeName"])
             
             fileName = torque_parser.get_filepath(c)
-            if not obj_list_used.has_key(fileName):
-                obj_list_used[fileName] = {"name": c.name, "type":c.type, "nb_used": nb}
+            bngpath = os.path.normpath( os.path.dirname(mis_path) + os.sep + fileName )
+            if not obj_list_used.has_key(bngpath):
+                obj_list_used[bngpath] = {"name": c.name, "type":c.type, "nb_used": nb}
             else:
-                obj_list_used[fileName]["nb_used"] += nb
+                obj_list_used[bngpath]["nb_used"] += nb
             
 
 def child_tree(tree,mis_path,parent=None):
@@ -104,7 +136,11 @@ def child_tree(tree,mis_path,parent=None):
         
         
     if tree.type == "Prefab":
-            child_doublon(tree.child,mis_path,id_p)
+        if torque_parser.is_BNGpath( tree.option["fileName"] ):
+            path = tree.option["fileName"]
+        else:
+            path = torque_parser.join_BNGpath(mis_path, tree.option["fileName"])
+        child_doublon(tree.child, path,id_p)
     else:
         if len(tree.child):
             child_doublon(tree.child,mis_path,id_p)
@@ -120,7 +156,8 @@ def make_tree(tree,mis_path):
     obj_list_used =[]
     child_tree(tree,mis_path)
     #return json.dumps(the_tree, indent=4) # debugging data
-    return json.dumps(the_tree) #Production
+    #return json.dumps(the_tree) #Production
+    return the_tree
 
 def make_report(fname):
     global report_step
@@ -178,9 +215,15 @@ class MakeReportThread(Thread):
         Thread.__init__(self)
         self.fname=fname
         self.step=0
+        self.error=""
         
     def run(self):
         #try:
+        now = datetime.datetime.now()      
+        #reportName = "report_"+os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
+        reportName = os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".btr"
+        
+        
         r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname,True)
         """except:
             print "parse error"
@@ -190,23 +233,120 @@ class MakeReportThread(Thread):
         
         tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname)
         
-        obj_list_used_html = ""
-        for k in obj_list_used.keys():
-            try:
-                os.path.split(k)
-                obj_list_used_html += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%i</td></tr>\n"%(os.path.split(k)[0],os.path.split(k)[1],obj_list_used[k]["type"],obj_list_used[k]["nb_used"])
-            except :
-                print sys.exc_info()
         
-        msg_list_html=""
-        for i in msg_list:
-            msg_list_html += "<tr class='.%s'><td>%s</td><tr>\n"%(i[0],i[1])
+        data = {}
+        data['info'] = {"version":
+                            {"report":1,
+                                "soft":{
+                                   "number":_version.__version_long__,
+                                   "git_hash":_version.git_hash,
+                                   "git_hash_short":_version.git_hash_short
+                                }
+                            },
+                        "date":now.strftime("%Y-%m-%d"),
+                        "time": now.strftime("%H:%M:%S"),
+                        "author":"%name%",
+                        "name":self.fname,
+                        }        
         
-        now = datetime.datetime.now()      
-        reportName = "report_"+os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
+        map_dir = os.path.dirname(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname)
+        
+        mat=[]
+        
+        for root, dirs, files in os.walk( map_dir , topdown=True):
+            for name in files:
+                fpath = os.path.join(root, name)
+                #bngpath = fpath[fpath.find("levels"):]
+                bngpath = torque_parser.get_BNGpath(fpath)
+                if not( bngpath in obj_list_used.keys() ):
+                    #add this files
+                    if name == "materials.cs":
+                        obj_list_used[bngpath] = {"type": "Torque Script (Material)","nb_used": 1}
+                        mat += torque_parser.mission_parser(fpath,True)
+                    elif name.endswith(".cs"):
+                        obj_list_used[bngpath] = {"type": "Torque Script","nb_used": 1}
+                    elif name.endswith(".json"):
+                        if name == "info.json" and root == map_dir:
+                            obj_list_used[bngpath] = {"type": "JSON (map info)","nb_used": 1}
+                            with open(fpath) as data_file:    
+                                data['info']['info'] = json.load(data_file)
+                                for ip in data['info']['info']['previews']:
+                                    if not obj_list_used.has_key(bngpath):
+                                        obj_list_used[bngpath] = {"type":"Picture (map preview)", "nb_used": 1}
+                                    else:
+                                        obj_list_used[bngpath]["nb_used"] += 1
+                        elif name == "map.json" and root == map_dir:
+                            obj_list_used[bngpath] = {"type": "JSON (map path)","nb_used": 1}
+                    elif name.endswith(".mis.decals"):
+                        obj_list_used[bngpath] = {"type":"Mission decals", "nb_used": 1}
+                    elif name.endswith(".cdae"):
+                        obj_list_used[bngpath] = {"type":"Mesh cache", "nb_used": 0}
+                        msg_list.append( ("warning","Mesh cache shouldn't be packed in the mod (%s)"%(bngpath) ) )
+                    else:
+                        obj_list_used[bngpath] = {"type": "...","nb_used": 0}
+        
+            
+        for m in mat:
+            tex_opt = []
+            if m.type == "CubemapData":
+                tex_opt = ["cubeFace[0]", "cubeFace[1]" "cubeFace[2]", "cubeFace[3]", "cubeFace[4]", "cubeFace[5]"]
+            elif m.type == "Material":
+                tex_opt = ["specularMap[0]","diffuseMap[0]","normalMap[0]","specularMap[1]","diffuseMap[1]","normalMap[1]"]
+            elif m.type == "TerrainMaterial":
+                tex_opt = []
+            else:
+                msg_list.append( ("error","Material script object type unknown : %s in %s"%(m.type,m.source) ) )
+                
+            for top in tex_opt:
+                if top in m.option.keys():
+                    bpath = torque_parser.join_BNGpath( os.path.dirname(m.source), m.option[top] )
+                    if os.path.splitext(bpath)[1] == "":
+                        #no ext -> find the file by guessing the ext
+                        mExtFound = False
+                        for ext in [".dds", ".png", ".jpg", ".jpeg", ".bmp"]:
+                            if bpath+ext in obj_list_used.keys():
+                                bpath+=ext
+                                obj_list_used[bpath]["type"] = "Texture"
+                                obj_list_used[bpath]["nb_used"] += 1
+                                mExtFound = True
+                                break
+                            
+                        if not(mExtFound):
+                            msg_list.append( ("error", "Material texture not found = %s (from %s)"%(bpath, m.source) ) )
+
+                    else:
+                        if bpath in obj_list_used.keys():
+                            obj_list_used[bpath]["type"] = "Texture"
+                            obj_list_used[bpath]["nb_used"] += 1
+                        else:
+                            msg_list.append( ("error", "Material texture not found = %s (from %s)"%(bpath, m.source) ) )
+                        
+        #Unused Object!!!!!!!!!!!!!!!!!!!!
+        unused_obj = 0                
+        for o in obj_list_used.keys():
+            if obj_list_used[o]["nb_used"] == 0:
+                unused_obj +=1
+                
+        if unused_obj:
+            msg_list.append( ("warning","There is %d unused object"%(unused_obj) ) )
         
         self.step = 2
-        with open("theme\\default\\index.html", "r") as s:
+        
+        #tranform every TorqueObject in dict so python can serialiate them in json
+        mat_json=[]
+        for m in mat:
+            mat_json.append(m.__dict__)
+        
+        data['report']= {"tree":tree_str,
+                 "objCount":realcounter,
+                 "res":obj_list_used,
+                 "msg":msg_list,
+                 "mat":mat_json}
+        
+        with open(reportName, 'w') as outfile:
+            json.dump(data, outfile, indent=4)
+        
+        """with open("theme\\default\\index.html", "r") as s:
             with open(reportName, "w") as d:
                 for l in s:
                     tmp = l
@@ -231,8 +371,15 @@ class MakeReportThread(Thread):
                         
                     
                     d.write(tmp)
+                    
+                    """
+    
         self.step = 3
-        webbrowser.open(reportName)
+        #webbrowser.open(reportName)
+        #webbrowser.open( "%s\\theme\\default\\json.html?file=../../%s&fake=file.html"%(os.getcwd(),reportName) )
+        with open("redirect.html","w") as f:
+            f.write("<html><script>window.location.href = 'theme/default/json.html?file=../../%s';</script></html>"%(reportName))
+            webbrowser.open("redirect.html")
     
 
 if __name__ == '__main__':

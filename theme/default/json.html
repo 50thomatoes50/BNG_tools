@@ -7,32 +7,34 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" type='image/x-icon' href="image/icon.ico">
-    <link rel="icon" type="image/png" href="image/icon_256.png" />
+    <link rel="icon" type='image/x-icon' href="../../image/icon.ico">
+    <link rel="icon" type="image/png" href="../../image/icon_256.png" />
 
     <title>BeamNG map Report</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="theme/default/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="theme/default/css/dashboard.css" rel="stylesheet">
+    <link href="css/dashboard.css" rel="stylesheet">
 	
-	<link href="theme/default/css/bootstrap-sortable.css" rel="stylesheet">
+	<link href="css/bootstrap-sortable.css" rel="stylesheet">
      
-    <script src="theme/default/js/jquery-1.12.1.min.js"></script> 
-    <script src="theme/default/js/bootstrap.min.js"></script>
+    <script src="js/jquery-1.12.1.min.js"></script> 
+    <script src="js/bootstrap.min.js"></script>
 	
-	<script src="theme/default/js/bootstrap-sortable.js"></script>
+	<script src="js/bootstrap-sortable.js"></script>
       
-    <script src="theme/default/Highcharts/js/highcharts.js"></script>
-    <script src="theme/default/Highcharts/js/highcharts-more.js"></script>
-    <script src="theme/default/Highcharts/js/modules/exporting.js"></script>
-    <script src="theme/default/Highcharts/js/modules/offline-exporting.js"></script>
+    <script src="Highcharts/js/highcharts.js"></script>
+    <script src="Highcharts/js/highcharts-more.js"></script>
+    <script src="Highcharts/js/modules/exporting.js"></script>
+    <script src="Highcharts/js/modules/offline-exporting.js"></script>
     
-    <script src="theme/default/Highcharts/js/modules/solid-gauge.js"></script>
-    <script src="theme/default/Highcharts/js/modules/heatmap.js"></script>
-    <script src="theme/default/Highcharts/js/modules/treemap.js"></script>
+    <script src="Highcharts/js/modules/solid-gauge.js"></script>
+    <script src="Highcharts/js/modules/heatmap.js"></script>
+    <script src="Highcharts/js/modules/treemap.js"></script>
+		
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
     <script>
 function hideall(){
@@ -44,6 +46,7 @@ function  show(element,toshow){
   $(toshow).show();
   element.parent().addClass("active");
 }
+
     </script>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -63,14 +66,14 @@ function  show(element,toshow){
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><span><img alt="Logo" src="image/icon_32.png">BeamNG map Report : %map_name%</span></a>
+          <a class="navbar-brand" href="#"><span><img alt="Logo" src="../../image/icon_32.png">BeamNG map Report : <span id="map_name"></span></span></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <!--<li><a href="#">Dashboard</a></li>
             <li><a href="#">Settings</a></li>
             <li><a href="#">Profile</a></li>-->
-            <li><a href="#" id="about-button">About</a></li>
+            <li><a href="#about" id="about-button">About</a></li>
           </ul>
           <!--<form class="navbar-form navbar-right">
             <input type="text" class="form-control" placeholder="Search...">
@@ -78,39 +81,38 @@ function  show(element,toshow){
         </div>
       </div>
     </nav>
+		
+		<div class="container-fluid" id="loading.page">
+      <div class="row">
+				<div id="loaddghj" class="col-sm-9 col-md-10  main">
+          <h1 class="page-header">Loading</h1>
+					<div class="row" id="loadingTXT"></div>
+				</div>
+			</div>
+		</div>
 
-    <div class="container-fluid">
+    <div class="container-fluid" id="data_page">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li class="active"><a id="overview-button" href="#">Overview</a></li>
-            <li><a id="object-button" href="#">Objects</a></li>
-            <li class="disabled"><a href="#">Materials</a></li>
-			<li><a id="resources-button" href="#">Resources</a></li>
+            <li class="active"><a id="overview-button" href="#main">Overview</a></li>
+            <li><a id="object-button" href="#obj">Objects</a></li>
+            <li><a id="mat-button" href="#mat">Materials</a></li>
+						<li><a id="resources-button" href="#res">Resources</a></li>
           </ul>
         </div>
         
-        <script>
-	//I know it's not really good but it works
-	$("#about-button").click(function() {
-		show($( this ),"#about");
-    });
-	$("#overview-button").click(function() {
-		show($( this ),"#overview");
-    });
-	$("#object-button").click(function() {
-		show($( this ),"#object");
-    });
-	$("#resources-button").click(function() {
-		show($( this ),"#resources");
-    });
-	</script>
-        
+       
         <div id="overview" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Dashboard</h1>
-
+					<h2 id="overview_info">Information</h2>
+						<div class="row placeholders" id="overview_info_div"></div>
+					
+					<h2>Gauges</h2>
           <div class="row placeholders">
             <script type="text/javascript">
+							
+function init_overview_chart(object_count,mat_count){					
               $(function () {
 
     var gaugeOptions = {
@@ -175,9 +177,6 @@ function  show(element,toshow){
             min: 0,
             max: 4096,
         },
-        credits: {
-            enabled: false
-        },
         title: {
             text: 'Objects'
         },
@@ -187,7 +186,7 @@ function  show(element,toshow){
 
         series: [{
             name: 'Objects',
-            data: [%object_count%],
+            data: [object_count],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:25px;color:' +
                     ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
@@ -217,7 +216,7 @@ function  show(element,toshow){
         },
         series: [{
             name: 'Materials',
-            data: [%mat_count%],
+            data: [mat_count],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:25px;color:' +
                     ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
@@ -229,6 +228,8 @@ function  show(element,toshow){
         }]
     }));
 });
+							
+}
     </script>
             <div id="gauge_chart_div" style="width: 800px; height: 300px;">
               <div id="gauge_obj" style="width: 400px; height: 300px; float:left;"></div>
@@ -237,16 +238,9 @@ function  show(element,toshow){
 
           </div>
 		  
-		  <h2>Warning and Errors</h2>
-			<div class="row placeholders">
-			  <div class="table-responsive">
-				<table class="table table-striped sortable">
-				  <thead>
-				  <tbody>
-					%msg_table%
-				  </tbody>
-				</table>
-			  </div>
+		  <h2 id="overview_msg">Warning and Errors</h2>
+			<div class="row placeholders" id="overview_msg_div">
+
           </div>
 
           
@@ -256,8 +250,11 @@ function  show(element,toshow){
       	<div id="object" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="display:none;">
           <h1 class="page-header">Object</h1>
           <script>
+
+function init_tree(tree_data){
+						
 $(function () {            
-            var points =  %tree_data%;
+            var points =  tree_data;
     
     $('#tree_chart_div').highcharts({
         series: [{
@@ -286,7 +283,7 @@ $(function () {
         }
     });
   });
-
+}
           </script>
           
           <div class="row placeholders">
@@ -314,11 +311,44 @@ $(function () {
 					  <th>File Name</th>
 					</tr>
 				  </thead>
-				  <tbody>
-					%obj_table%
+				  <tbody id="mod_res">
+
 				  </tbody>
 				</table>
 			  </div>
+          </div>
+		  
+	</div>
+					
+				<div id="mat" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="display:none;">
+          <h1 class="page-header">Materials</h1>
+
+          <div class="row placeholders">
+						<div class="table-responsive col-md-6">
+							<table class="table table-striped sortable">
+								<thead>
+								<tr>
+									<th>Name</th>
+									<th>Type</th>
+								 </tr>
+								</thead>
+								<tbody id="mat_list">
+			
+								</tbody>
+							</table>
+			
+						</div>
+						<div class="col-6 col-md-3 sidebar-offcanvas" id="sidebar">
+							
+								<table class="table table-striped">
+									<thead>
+										<tr><th colspan='2'>Material details</th></tr>
+									</thead>
+									<tbody id="mat_detail">
+										<tr><td>Select an item in the material list</td></tr>
+									</tbody>
+								</table>
+							</div>
           </div>
 		  
 	</div>
@@ -328,7 +358,7 @@ $(function () {
 
           <div class="row placeholders">
             <h2 class="sub_header">BeamNG report tool</h2>
-            Version %version_number% (<a href="https://github.com/50thomatoes50/BNG_tools/commit/%hash_long%">git hash %git_hash%</a>)
+            Version <span id="version_number"> </span> (<a id="git_hash_link" href="https://github.com/50thomatoes50/BNG_tools/commit/">git hash <span id="git_hash"></span></a>)
             <br>
             By 50thomatoes50
             
@@ -352,7 +382,186 @@ $(function () {
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     
-    
+    <script>
+			
+function changePage(){
+	
+if( window.location.hash.substr(1) )
+	{
+		switch( window.location.hash.substr(1).split(":")[0] )
+		{
+			case "main":
+				show($( "#overview-button" ),"#overview");
+				break;
+			case "obj":
+				show($( "#object-button" ),"#object");
+				break;
+			case "res":
+				show($( "#resources-button" ),"#resources");
+				break;
+			case "mat":
+				show($( "#mat-button" ),"#mat");
+				if (window.location.hash.substr(1).split(":")[1])
+				{
+					materialDetails(window.location.hash.substr(1).split(":")[1]);
+				}
+				break;
+			case "about":
+				show($( "#about-button" ),"#about");
+				break;
+		}
+	}
+}			
+
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
+
+$("#data_page").hide();
+$("div#loadingTXT").html( '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>');
+
+var jsonReport;
+
+var file = getUrlParameter("file");
+
+if( !file )
+{
+	$("div#loadingTXT").html( 'No report!');
+}
+else
+$.getJSON( file, function( data ) {
+	jsonReport = data;
+	
+	$(window).on('hashchange',  changePage);
+	changePage();
+	//Info
+	
+	$("#version_number").html(data.info.version.soft.number);
+	
+	$("#git_hash").html(data.info.version.soft.git_hash_short);
+	
+	$("#git_hash_link").attr('href', $("#git_hash_link").attr('href')+data.info.version.soft.git_hash);
+	
+	$("#map_name").html(data.info.name);
+	
+	//Overview
+	
+		//info
+	info = "<p>Report time : "+data.info.date+" "+data.info.time+"<br>\n";
+	info += "</p>";
+	$(info).insertAfter("h2#overview_info");
+	
+	init_overview_chart(data.report.objCount , data.report.mat.length);
+	
+	err= "";
+	err_nb=0;
+	warn="";
+	warn_nb=0;
+	
+	$.each( data.report.msg , function(index,value)
+		{
+			if( value[0]=="error")
+			{
+				err_nb++;
+				err += "<li>"+value[1]+"</li>";
+			}
+			if( value[0]=="warning")
+			{
+				warn_nb++;
+				warn += "<li>"+value[1]+"</li>";
+			}
+		});
+	
+	if(err_nb === 0)
+		err = "<h3>No Errors</h3>\n<p>Great job!</p>";
+	else
+		err = "<h3><span class='fa fa-exclamation-circle' aria-hidden='true' style='color:red;'></span> Errors ("+err_nb+")</h3><ul>"+err+"</ul>";
+		
+	if(warn_nb === 0)
+		warn = "<h3>No Warnings</h3>\n<p>Great job!</p>";
+	else
+		warn = "<h3><span class='fa fa-exclamation-triangle' aria-hidden='true' style='color:orange;'></span> Warnings ("+warn_nb+")</h3><ul>"+warn+"</ul>";
+		
+		
+
+	//$("#overview_msg").html(err+warn);
+	$( err+warn ).insertAfter("h2#overview_msg");
+	
+	
+	
+	//Objects
+	
+	init_tree( data.report.tree );
+	
+	$("#loadingTXT").html("ok");
+	$("#loading.page").hide();
+	$("#data_page").show();
+	//$("#loading.page").css("display", "none");
+	//$("#data_page").css("display", "");
+	document.getElementById("data_page").style.display = "";
+	document.getElementById("loading.page").style.display = "none";
+	
+	
+	//resources
+	var tmp="";
+	$.each( data.report.res , function(index,value)
+		{
+		  if (index.includes("/")) {
+		    filename = index.substring(index.lastIndexOf('/')+1);
+		    filepath = index.substring(0, index.lastIndexOf('/'));
+		  }
+		  else
+		  {
+		    filename = index.substring(index.lastIndexOf('\\')+1);
+		    filepath = index.substring(0, index.lastIndexOf('\\'));
+		  }
+		  
+			tmp+= "<tr><td>"+ filepath +"</td><td>"+ filename +"</td><td>" + value.type + "</td><td>" +value.nb_used + "</td><td></td></tr>";
+		});
+
+	$("#mod_res").html(tmp);
+	
+	//mat
+	tmp="";
+	$.each( data.report.mat , function(index,value)
+		{
+			tmp+= "<tr><td><a href='#mat:"+ value.name +"'>"+ value.name +"</a></td><td>" + value.type + "</td></tr>";
+	});
+	$("#mat_list").html(tmp);
+
+	})
+	.fail(function( jqxhr, textStatus, error ) {
+    var err = textStatus + ", " + error;
+    console.log( "Request Failed: " + err );
+		$("#loadingTXT").html("Request Failed: " + err);
+	});
+	
+function materialDetails(mname){	
+	var tmp="";
+	$.each( jsonReport.report.mat , function(index,value)
+		{
+			if( mname === value.name )
+			{
+				$.each( value.option , function(index,value){
+					tmp+= "<tr><td>"+ index +"</td><td>" + value + "</td></tr>";
+				});
+			}
+
+	});
+	$("#mat_detail").html(tmp);
+}
+		</script>
 
   </body>
 </html>
