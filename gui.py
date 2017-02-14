@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import Tkinter,ttk,tkMessageBox,tkFont
+import Tkinter,ttk,tkMessageBox,tkFont,_version
 from sys import platform
 from PIL import Image, ImageTk
 
@@ -27,10 +27,10 @@ class launcher(Tkinter.Tk):
         self.img = Image.open("image/icon_256.png")
         self.img.thumbnail((128,128), Image.ANTIALIAS)
         self.image= ImageTk.PhotoImage(self.img)
-        self.btn_stat = ttk.Button(self, text="Stats (only map)", image=self.image, compound="top")
+        self.btn_stat = ttk.Button(self, text="Check & Stats (only map)", image=self.image, compound="top")
         self.btn_stat.grid(row=0, column=0,padx=5, pady=5)
         
-        self.btn_chkpack = ttk.Button(self, text="Check mod and pack", state=Tkinter.DISABLED, image=self.image, compound="top")
+        self.btn_chkpack = ttk.Button(self, text="Pack", state=Tkinter.DISABLED, image=self.image, compound="top")
         self.btn_chkpack.grid(row=0, column=1,padx=5, pady=5)
         
         self.btn_3 = ttk.Button(self, text="3", state=Tkinter.DISABLED, image=self.image, compound="top")
@@ -38,6 +38,12 @@ class launcher(Tkinter.Tk):
         
         self.btn_4 = ttk.Button(self, text="4", state=Tkinter.DISABLED, image=self.image, compound="top")
         self.btn_4.grid(row=1, column=1,padx=5, pady=5)
+        
+        self.verLbl = Tkinter.Label(self, text = "BeamNG tools "+ _version.__version_long__ )
+        self.verLbl.grid(row=2, column=0,padx=5, pady=5, columnspan=2)
+        
+    def setCallback(self,stat):
+        self.btn_stat["command"] = stat
 
 
 class loading_popup(Tkinter.Tk):
@@ -176,5 +182,5 @@ if __name__ == '__main__':
     print "selected", c.var, c.Combobox.current()
     c.destroy()
     
-    c = reportWorking("truc.mis",-1,test=True)
+    c = reportWorking("truc.mis",None,test=True)
     c.mainloop()

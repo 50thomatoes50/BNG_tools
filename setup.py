@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import subprocess,re
+import subprocess,re,os,sys
+from cx_Freeze import setup, Executable
+ 
 
 try:
-    label = subprocess.check_output(["git", "describe", "--always"])
+    label = subprocess.check_output(["git", "describe", "--always", "--tags"])
 except WindowsError:
     raise Exception("Install git")
 
@@ -35,3 +37,53 @@ with open("_version.py","w") as f:
     fw("""__version_long__ = "%s hotfix %s"\n"""%(tags ,hotfix))
     fw("""git_hash= "%s" \n"""%(git_hash))
     fw("""git_hash_short= "%s" \n"""%(git_hash_short))
+    
+    
+    
+    
+    
+base = None
+if sys.platform == "win32":
+    #base = "Win32GUI"
+    base = "Console"
+
+executables = [
+    Executable("reporter.py",
+               base=base,
+               icon="image/icon.ico"
+    ),
+    Executable("BeamNG_Tools.py",
+               base=base,
+               icon="image/icon.ico"
+    )
+]
+
+include_files=[]
+include_files.append("LICENSE")
+include_files.append("readme.md")
+
+#this loop get all files in the directory array to be coped to tha build directory
+for toCopy in ["image","theme"]:
+	for root, dirs, files in os.walk( toCopy , topdown=True):
+		for name in files:
+			fpath = os.path.join(root, name)
+			include_files.append( (fpath,fpath) )
+
+buildOptions = dict(
+    compressed=True,
+    optimize = 2,
+    includes=[],
+    packages=[],
+    include_files=include_files,
+    excludes= [],
+    zip_includes=[],
+    include_msvcr = True
+    )
+
+setup(
+    name = "BeamNG tools",
+    version = "0.1.0",
+    description = " Tools to help BeamNG.Drive modders http://50thomatoes50.github.io/BNG_tools/",
+    options=dict(build_exe=buildOptions),
+    executables = executables
+)

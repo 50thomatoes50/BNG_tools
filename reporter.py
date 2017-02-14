@@ -1,12 +1,7 @@
 #!/usr/bin/env python
-import sys,os,platform,datetime ,json,webbrowser
+import sys,os,platform,datetime ,json,webbrowser, tkMessageBox
 from threading import Thread
-import gui,torque_parser,_version
-try:
-    import Tkinter
-except:
-    print "Tkinter is missing"
-    sys.exit(-1)
+import gui,torque_parser,_version 
      
 
 class CaseInsensitiveDict(dict):
@@ -380,19 +375,34 @@ class MakeReportThread(Thread):
         with open("redirect.html","w") as f:
             f.write("<html><script>window.location.href = 'theme/default/json.html?file=../../%s';</script></html>"%(reportName))
             webbrowser.open("redirect.html")
-    
+            
+def RunReporter():
+    fichier = scan_mis(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\")
+    c = gui.choose(fichier)
+    c.mainloop()
+    if(c.quit_val):
+        c.destroy()
+    else:
+        c.destroy()
+        print "Mission files selcted :", fichier[c.var], "(",c.var,")"
+        #make_report(fichier[c.var])
+        #os.system("pause")
+        th = MakeReportThread(fichier[c.var])
+        th.isAlive
+        c = gui.reportWorking(fichier[c.var],th)
+        c.mainloop()
 
 if __name__ == '__main__':
     if platform.system() != "Windows":
         print "You aren't running Python on Windows\n This script may not work"
-        tk.tkMessageBox.showerror (
+        tkMessageBox.showerror (
             "Error",
             "You aren't running Python on Windows\n This script may not work"
         )
         sys.exit(-1)
     #print os.environ
     if not(os.path.exists(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked")):
-        tk.tkMessageBox.showerror (
+        tkMessageBox.showerror (
             "Error",
             "BeamNG.drive\\mods\\unpacked !!!!!!!!!!"
         )
