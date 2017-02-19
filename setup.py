@@ -73,7 +73,6 @@ for toCopy in ["image","theme"]:
 			include_files.append( (fpath,fpath) )
 
 buildOptions = dict(
-    compressed=True,
     optimize = 2,
     includes=[],
     packages=[],
