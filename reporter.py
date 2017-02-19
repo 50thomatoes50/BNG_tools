@@ -51,6 +51,34 @@ def scan_mis(fpath):
                 
     return mis_files
 
+class ScanMisThread(Thread):
+
+    def __init__(self, fpath , cbre, cbend):
+        Thread.__init__(self)
+        self.fpath      = fpath
+        self.debug      = False
+        self.mis_files  = []
+        self.cbre       = cbre
+        self.cbend      = cbend
+        self.done       = False
+        
+    def run(self):
+        if self.debug:
+            print "\n ### scan_mis() ###"
+        
+        for root, dirs, files in os.walk(self.fpath):
+            level = root.replace(self.fpath, '').count(os.sep)
+            for f in files:
+                ext = os.path.splitext(f)[1]
+                if ext == ".mis":
+                    self.mis_files.append(root.replace(self.fpath, '')+"\\"+f)
+                    self.cbre( "Found %d map(s)"%(len(self.mis_files)) )
+                    if self.debug:
+                        print f
+                    
+        self.done = True
+        self.cbend()
+
 the_tree = []
 indice = 0
 realcounter = 0
@@ -377,7 +405,21 @@ class MakeReportThread(Thread):
             webbrowser.open("redirect.html")
             
 def RunReporter():
-    fichier = scan_mis(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\")
+    a = gui.loading_popup("Scanning ...", "indeterminate", "Scanning...")
+    #fichier = scan_mis(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\")
+    th = ScanMisThread(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\", a.set_lbl, a.dele)
+    th.start()
+    #th.join()
+    a.mainloop()
+    a.destroy()
+    if th.done:
+        fichier = th.mis_files
+    else:
+        tkMessageBox.showerror (
+            "Error",
+            "The scan may have gone wrong.\nSome files can be missing in the list."
+        )
+    
     c = gui.choose(fichier)
     c.mainloop()
     if(c.quit_val):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import Tkinter,ttk,tkMessageBox,tkFont,_version
+import Tkinter,ttk,tkMessageBox,tkFont,_version,sys,webbrowser
 from sys import platform
 from PIL import Image, ImageTk
 
@@ -22,6 +22,7 @@ class launcher(Tkinter.Tk):
         Tkinter.Tk.__init__(self)
         self.title("BeamNG Tools.py - Launcher")
         icon(self)
+        self.resizable(0,0)
         
         #self.image = Tkinter.PhotoImage(file="image\\icon_256.png")
         self.img = Image.open("image/icon_256.png")
@@ -39,24 +40,86 @@ class launcher(Tkinter.Tk):
         self.btn_4 = ttk.Button(self, text="4", state=Tkinter.DISABLED, image=self.image, compound="top")
         self.btn_4.grid(row=1, column=1,padx=5, pady=5)
         
-        self.verLbl = Tkinter.Label(self, text = "BeamNG tools "+ _version.__version_long__ )
+        self.verLbl = Tkinter.Label(self, text = "BeamNG tools "+ _version.__version_long__)
         self.verLbl.grid(row=2, column=0,padx=5, pady=5, columnspan=2)
+        self.verLbl.bind("<Button-1>", self.about)
         
     def setCallback(self,stat):
         self.btn_stat["command"] = stat
+        
+    def about(self,*args):
+        a = about_win()
+        
+class about_win(Tkinter.Toplevel):
+    def __init__(self):
+        Tkinter.Toplevel.__init__(self)
+        self.title("About - BeamNG Tools")
+        self.grab_set()
+        self.focus_set()
+        self.resizable(0,0)
+        
+        self.img = Image.open("image/icon_256.png")
+        self.image= ImageTk.PhotoImage(self.img)
+        self.imlabel = Tkinter.Label(self, image=self.image)
+        self.imlabel.pack(padx=5, pady=5)
+        
+        self.lbl = Tkinter.Label(self,text = "BeamNG Tools")
+        self.lbl.pack(padx=5, pady=5)
+        
+        self.lblver = Tkinter.Label(self,text = "Version " + _version.__version_long__ + " (" + _version.git_hash_short + ")")
+        self.lblver.pack(padx=5, pady=5)
+        
+        self.lblc = Tkinter.Label(self,text = "(C) 2017 Thomas PORTASSAU")
+        self.lblc.pack(padx=5, pady=5)
+        
+        def site(event):
+            webbrowser.open_new(r"https://github.com/50thomatoes50/BNG_tools")
+        
+        self.lblurl = Tkinter.Label(self,text="github.com/50thomatoes50/BNG_tools", fg="blue", cursor="hand2")
+        self.lblurl.pack(padx=5, pady=5)
+        self.lblurl.bind("<Button-1>", site)
+        
+        self.bouton_quit = ttk.Button(self, text="Quit", command=self.destroy)
+        self.bouton_quit.pack(side="right",padx=10,pady=10)
+        
+        def licwww():
+            webbrowser.open_new(r"https://github.com/50thomatoes50/BNG_tools/blob/master/LICENSE")
+        self.bouton_lic = ttk.Button(self, text="License", 
+                command=licwww)
+        self.bouton_lic.pack(side="left",padx=10,pady=10)
+        
+        if getattr(sys, 'frozen', False):
+            import BUILD_CONSTANTS
+            self.lblbuild = Tkinter.Label(self,text = "Build on '%s' the %s"%(BUILD_CONSTANTS.BUILD_HOST, BUILD_CONSTANTS.BUILD_TIMESTAMP))
+            self.lblbuild.pack(padx=5, pady=5)
 
-
-class loading_popup(Tkinter.Tk):
+class loading_popup(Tkinter.Toplevel):
     def __init__(self,title,mode,label):
         "mode = indeterminate || determinate"
-        Tkinter.Tk.__init__(self)
+        Tkinter.Toplevel.__init__(self)
         self.title(title)
+        self.grab_set()
+        self.focus_set()
+        self.resizable(0,0)
         icon(self)
         self.pbar = ttk.Progressbar(self, mode=mode, length=200)
         self.pbar.grid(row=0, column=0,padx=5, pady=5)
         
         self.lbl = Tkinter.Label(self,text=label)
         self.lbl.grid(row=1, column=0,padx=5, pady=5)
+        
+        self.end = False
+        
+        self.protocol('WM_DELETE_WINDOW', self.close_checker)
+        
+        if mode == 'indeterminate':
+            self.pbar.start()
+            
+    def close_checker(self):
+        if self.end:
+            self.quit()
+        else:
+            print "noclose"
         
     def start(self):
         self.pbar.start(50)
@@ -68,14 +131,25 @@ class loading_popup(Tkinter.Tk):
         self.pbar.stop()
         
     def set_lbl(self,txt):
-        self.lbl['test']=txt
+        self.lbl['text']=txt
+        
+    def dele(self ):
+        self.end = True
+        self.stop()
+        self.quit()
+        #self.destroy()
+    
     
 
-class choose(Tkinter.Tk):
+class choose(Tkinter.Toplevel):
     def __init__(self,files):
-        Tkinter.Tk.__init__(self)
+        Tkinter.Toplevel.__init__(self)
         self.title("Choose the map")
+        self.grab_set()
+        self.focus_set()
+        self.resizable(0,0)
         icon(self)
+        
         self.var = -1
         self.Combobox = ttk.Combobox(self, state="readonly")
         self.Combobox['values'] = files
@@ -107,10 +181,14 @@ class choose(Tkinter.Tk):
             self.var = self.Combobox.current()
             self.quit()
             
-class reportWorking(Tkinter.Tk):
+class reportWorking(Tkinter.Toplevel):
     def __init__(self,name,th,test=False):
-        Tkinter.Tk.__init__(self)
+        Tkinter.Toplevel.__init__(self)
+        self.grab_set()
+        self.focus_set()
+        self.resizable(0,0)
         icon(self)
+        
         self.t =th
         self.test=test
         self.title("Making report ...")
@@ -135,6 +213,12 @@ class reportWorking(Tkinter.Tk):
             self.after(2000,self.refresh)
         else:
             self.after(200,self.refresh)
+            
+        self.protocol('WM_DELETE_WINDOW', self.close_checker)
+        
+    def close_checker(self):
+        if not self.t.alive:
+            self.quit()
             
     def refresh(self):
         if self.test:

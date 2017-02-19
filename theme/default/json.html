@@ -18,12 +18,19 @@
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
 	
-	<link href="css/bootstrap-sortable.css" rel="stylesheet">
+	
      
     <script src="js/jquery-1.12.1.min.js"></script> 
     <script src="js/bootstrap.min.js"></script>
 	
-	<script src="js/bootstrap-sortable.js"></script>
+	<!--<link href="css/bootstrap-sortable.css" rel="stylesheet">
+	<script src="js/bootstrap-sortable.js"></script>-->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/locale/bootstrap-table-en-US.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/extensions/export/bootstrap-table-export.min.js"></script> 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/extensions/mobile/bootstrap-table-mobile.min.js"></script> 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/extensions/multiple-sort/bootstrap-table-multiple-sort.min.js"></script>
       
     <script src="Highcharts/js/highcharts.js"></script>
     <script src="Highcharts/js/highcharts-more.js"></script>
@@ -297,26 +304,30 @@ $(function () {
           <h1 class="page-header">Resources list</h1>
 
           <div class="row placeholders">
-			  <div class="table-responsive">
-				<table class="table table-striped sortable">
-				  <thead>
-					<tr>
-					  <th colspan='2'>File</th>
-					  <th rowspan='2'>Object Type</th>
-					  <th rowspan='2' class='up sorted'>Number of use</th>
-					  <th rowspan='2'>State</th>
-					 </tr>
-					<tr>
-					  <th>File location</th>
-					  <th>File Name</th>
-					</tr>
-				  </thead>
-				  <tbody id="mod_res">
+		  <div class="bootstrap-table">
+						<table class="table table-hover" id='table_res' data-toggle="table" data-search="true" data-show-multi-sort="true"
+									 data-show-refresh="false" data-show-toggle="true" data-show-columns="true" data-show-export="true"
+									 data-detail-view="false" data-detail-formatter="detailFormatter" data-minimum-count-columns="1"
+									 data-show-pagination-switch="true" data-pagination="true" data-id-field="id" 
+									 data-page-size='10' data-page-list="[10, 25, 50, 100, ALL]" data-show-footer="false">
+						<thead>
+								<tr>
+									<th colspan='2' data-sortable='true'>File</th>
+									<th rowspan='2' class='sortable both' data-sortable='true'>Object Type</th>
+									<th rowspan='2' class='sortable both' data-sortable='true'>Number of use</th>
+									<th rowspan='2' class='sortable both' data-sortable='true'>State</th>
+								 </tr>
+								<tr>
+									<th class='sortable both' data-sortable='true'>File location</th>
+									<th class='sortable both' data-sortable='true'>File Name</th>
+								</tr>
+						</thead>
+						<tbody id="mod_res">
 
-				  </tbody>
-				</table>
+							</tbody>
+						</table>
 			  </div>
-          </div>
+      </div>
 		  
 	</div>
 					
@@ -325,7 +336,11 @@ $(function () {
 
           <div class="row placeholders">
 						<div class="table-responsive col-md-6">
-							<table class="table table-striped sortable">
+							<table class="table table-hover" id='table_mat' data-toggle="table" data-search="true" data-show-multi-sort="false"
+									 data-show-refresh="false" data-show-toggle="false" data-show-columns="false" data-show-export="true"
+									 data-detail-view="false" data-detail-formatter="detailFormatter" data-minimum-count-columns="1"
+									 data-show-pagination-switch="false" data-pagination="true" data-id-field="id" 
+									 data-page-size='10' data-page-list="[10, 25, 50, 100, ALL]" data-show-footer="false">
 								<thead>
 								<tr>
 									<th>Name</th>
