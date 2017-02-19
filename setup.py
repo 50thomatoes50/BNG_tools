@@ -79,7 +79,8 @@ buildOptions = dict(
     include_files=include_files,
     excludes= [],
     zip_includes=[],
-    include_msvcr = True
+    include_msvcr = True,
+    silent = True
     )
 
 setup(
