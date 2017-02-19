@@ -1,3 +1,2 @@
 cx_Freeze
 pillow
-pywin32
