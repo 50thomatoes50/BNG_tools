@@ -55,6 +55,9 @@ executables = [
     Executable("BeamNG_Tools.py",
                base=base,
                icon="image/icon.ico"
+    ),
+    Executable("windows_integration.py",
+               base=base,
     )
 ]
 
