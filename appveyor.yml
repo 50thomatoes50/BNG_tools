@@ -1,3 +1,4 @@
+version: {build}
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
@@ -97,6 +98,11 @@ artifacts:
   - path: build
     name: build_folder
 
-#on_success:
-#  - TODO: upload the content of dist/*.whl to a public wheelhouse
-#
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: ONlgTzuND/IND/s3wgIq9wcQDzjqvww/2RpINuroQIKNFpLuCGhSjcPcICMaY7le
+  artifact: build_folder
+  draft: true
+  prerelease: true
+  force_update: true
