@@ -115,6 +115,7 @@ deploy:
   description: 'Release description'
   provider: GitHub
   on:
+    branch: master
     appveyor_repo_tag: true
   auth_token:
     secure: ONlgTzuND/IND/s3wgIq9wcQDzjqvww/2RpINuroQIKNFpLuCGhSjcPcICMaY7le
