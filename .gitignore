@@ -6,3 +6,4 @@ _version.py
 *.btr
 redirect.html
 build/
+.temp/

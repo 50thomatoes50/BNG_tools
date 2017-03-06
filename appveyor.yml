@@ -23,14 +23,16 @@ environment:
     # See: http://www.appveyor.com/docs/installed-software#python
 
     - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+      PYTHON_VERSION: "2.7.x" # currently 2.7.13
       PYTHON_ARCH: "32"
       PYWIN32_URL: "https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20220/pywin32-220.win32-py2.7.exe"
+      INSTALL_SCRIPT: "32.iss"
 
     - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+      PYTHON_VERSION: "2.7.x" # currently 2.7.13
       PYTHON_ARCH: "64"
       PYWIN32_URL: "https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20220/pywin32-220.win-amd64-py2.7.exe"
+      INSTALL_SCRIPT: "64.iss"
 
 
 
@@ -81,6 +83,10 @@ install:
 build_script:
   # Build the compiled extension
   - "%CMD_IN_ENV% python setup.py build"
+  # Windows Installer
+  - choco install -y InnoSetup
+  - set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
+  - iscc appveyor\%INSTALL_SCRIPT%
 
 test_script:
   # Run the project tests
@@ -95,11 +101,15 @@ after_test:
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
-  - path: build
-    name: build_folder
-
+  - path: build/exe.win32-2.7
+    name: build_folder_32
+  - path: build/exe.win-amd64-2.7
+    name: build_folder_64 
+    
 deploy:
-- provider: GitHub
+  tag: $(APPVEYOR_REPO_TAG_NAME)
+  release: bngtool $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
   auth_token:
     secure: ONlgTzuND/IND/s3wgIq9wcQDzjqvww/2RpINuroQIKNFpLuCGhSjcPcICMaY7le
   artifact: build_folder

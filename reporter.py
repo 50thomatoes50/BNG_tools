@@ -233,12 +233,20 @@ def make_report(fname):
     
 
 class MakeReportThread(Thread):
+    """ a Thread class that make a ruport on the map `fname`
+    extinfo is a dict
+    origin_path is by default in User Documents folder"""
 
-    def __init__(self, fname):
+    def __init__(self, fname,
+                 extinfo={},
+                 origin_path = os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\"
+                 ):
         Thread.__init__(self)
         self.fname=fname
+        self.extinfo = extinfo
         self.step=0
         self.error=""
+        self.origin_path = origin_path
         
     def run(self):
         #try:
@@ -247,14 +255,14 @@ class MakeReportThread(Thread):
         reportName = os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".btr"
         
         
-        r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname,True)
+        r = torque_parser.mission_parser(self.origin_path + self.fname,True)
         """except:
             print "parse error"
             return"""
         self.step=1
         objnb = torque_parser.count(r)
         
-        tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname)
+        tree_str = make_tree(r[0],self.origin_path + self.fname)
         
         
         data = {}
@@ -268,11 +276,12 @@ class MakeReportThread(Thread):
                             },
                         "date":now.strftime("%Y-%m-%d"),
                         "time": now.strftime("%H:%M:%S"),
-                        "author":"%name%",
+                        "author":"",
                         "name":self.fname,
+                        "extinfo":self.extinfo
                         }        
         
-        map_dir = os.path.dirname(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + self.fname)
+        map_dir = os.path.dirname(self.origin_path + self.fname)
         
         mat=[]
         
@@ -335,14 +344,21 @@ class MakeReportThread(Thread):
                                 break
                             
                         if not(mExtFound):
-                            msg_list.append( ("error", "Material texture not found = %s (from %s)"%(bpath, m.source) ) )
-
+                            msg_list.append( ("error",
+                                              "Material <a href='#mat:%s'>%s</a> texture not found = %s (from %s)"%
+                                              (m.name, m.name, bpath, m.source)
+                                            ) )
+                    
+                    #extention is present in path so check it
                     else:
                         if bpath in obj_list_used.keys():
                             obj_list_used[bpath]["type"] = "Texture"
                             obj_list_used[bpath]["nb_used"] += 1
                         else:
-                            msg_list.append( ("error", "Material texture not found = %s (from %s)"%(bpath, m.source) ) )
+                            msg_list.append( ("error",
+                                              "Material <a href='#mat:%s'>%s</a> texture not found = %s (from %s)"%
+                                              (m.name, m.name, bpath, m.source)
+                                            ) )
                         
         #Unused Object!!!!!!!!!!!!!!!!!!!!
         unused_obj = 0                

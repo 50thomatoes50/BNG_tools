@@ -383,7 +383,8 @@ $(function () {
             Highcharts files are provided and used under the  <a href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 License.</a><br>
             <br>
             Bootstrap files are provided and used under <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE">The MIT License (MIT)</a><br>
-			<a href='https://github.com/drvic10k/bootstrap-sortable'>Bootstrap-sortable</a> free licence ?<br>
+						<a href="http://bootstrap-table.wenzhixin.net.cn/">Bootstrap table</a> are provided and used under <a href="https://github.com/wenzhixin/bootstrap-table/blob/develop/LICENSE">The MIT License (MIT)</a><br>
+
             <br>
             The rest of files are under the term of <a href="https://raw.githubusercontent.com/50thomatoes50/BNG_tools/master/LICENSE">GNU GENERAL PUBLIC LICENSE Version 2</a>
           </div>
@@ -456,6 +457,8 @@ if( !file )
 }
 else
 $.getJSON( file, function( data ) {
+	
+try{
 	jsonReport = data;
 	
 	$(window).on('hashchange',  changePage);
@@ -473,8 +476,25 @@ $.getJSON( file, function( data ) {
 	//Overview
 	
 		//info
+	
 	info = "<p>Report time : "+data.info.date+" "+data.info.time+"<br>\n";
+	if(data.info.info)
+	{
+		info += "Map Name : " + data.info.info.title + "<br>\n";
+		info += "Map author : " + data.info.info.authors + "<br>\n";
+	}
 	info += "</p>";
+	
+	if(data.info.extinfo && Object.keys( data.info.extinfo ).length )
+	{
+			info += "<h4>Extra or external information</h4>";
+			$.each( data.info.extinfo , function(index,value)
+			{
+				//http://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
+				info += index.charAt(0).toUpperCase() + index.slice(1);
+				info += " : " + value + "<br>\n";
+			});
+	}
 	$(info).insertAfter("h2#overview_info");
 	
 	init_overview_chart(data.report.objCount , data.report.mat.length);
@@ -555,6 +575,13 @@ $.getJSON( file, function( data ) {
 	});
 	$("#mat_list").html(tmp);
 
+}
+catch(err)
+{
+	$("#loadingTXT").html("An error happened while loading data\n<br>"+err);
+	throw err;
+}
+
 	})
 	.fail(function( jqxhr, textStatus, error ) {
     var err = textStatus + ", " + error;
@@ -575,6 +602,7 @@ function materialDetails(mname){
 
 	});
 	$("#mat_detail").html(tmp);
+	
 }
 		</script>
 

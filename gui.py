@@ -127,6 +127,9 @@ class loading_popup(Tkinter.Toplevel):
     def step(self,i):
         self.pbar.step(i)
         
+    def set_progress(self,i):
+        self.pbar['value']= i
+        
     def stop(self):
         self.pbar.stop()
         
