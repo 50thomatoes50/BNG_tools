@@ -1,4 +1,5 @@
-version: '{build}'
+version: '0.1.0 ({build})'
+appveyor_repo_tag: true
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
@@ -105,6 +106,10 @@ artifacts:
     name: build_folder_32
   - path: build/exe.win-amd64-2.7
     name: build_folder_64 
+  - path: BNG_tools-setup32.exe
+    name: BNG_tools-setup32-exe
+  - path: BNG_tools-setup64.exe
+    name: BNG_tools-setup64-exe
     
 deploy:
   tag: $(APPVEYOR_REPO_TAG_NAME)
