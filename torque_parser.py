@@ -72,8 +72,16 @@ def get_BNGpath(fpath):
     try:
         return os.sep.join(a[a.index("unpacked")+2:])
     except ValueError:
-        print "ValueError path not valid? (%s)"%(fpath)
-        raise
+        #if it's not in unpacked for repo
+        if "levels" in fpath:
+            return os.sep.join(a[a.index("levels"):])
+        elif "vehicles" in fpath:
+            return os.sep.join(a[a.index("levels"):])
+        elif "art" in fpath:
+            return os.sep.join(a[a.index("art"):])
+        else:
+            print "ValueError path not valid? (%s)"%(fpath)
+            raise
     """
     if not("levels" in p_path) or "./" in p_path or ".\\" in p_path:
         return os.path.dirname(file_path[p_path.find("levels"):]) + os.sep + p_path #relative

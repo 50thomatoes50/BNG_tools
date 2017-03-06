@@ -1,2 +1,3 @@
 cx_Freeze
 pillow
+beautifulsoup4

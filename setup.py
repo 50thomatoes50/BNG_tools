@@ -21,12 +21,15 @@ else:
     print splited
     raise Exception("Unknown")
 
+if tags[0:1] == "v":
+    tags = tags[1:]
+
 __version__ = tags + "." + hotfix
 
 __version_long__ = tags + " hotfix " + hotfix
 
 #describe don't give the right thing (add a g)
-git_hash =subprocess.check_output(["git", "rev-parse", "master"]).strip("\n")
+git_hash =subprocess.check_output(["git", "rev-parse", "master"]).strip("\n") #should use HEAD instead of maste
 git_hash_short = git_hash[:7]
 
 

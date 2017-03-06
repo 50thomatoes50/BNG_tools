@@ -52,8 +52,11 @@ def scan_mis(fpath):
     return mis_files
 
 class ScanMisThread(Thread):
+    """Scan for mis file incide a fpath"""
 
-    def __init__(self, fpath , cbre, cbend):
+    def __init__(self, fpath , cbre = None, cbend = None):
+        """cbre : callback to refresh a label on a gui
+        cbend : callback called when function finished"""
         Thread.__init__(self)
         self.fpath      = fpath
         self.debug      = False
@@ -72,12 +75,14 @@ class ScanMisThread(Thread):
                 ext = os.path.splitext(f)[1]
                 if ext == ".mis":
                     self.mis_files.append(root.replace(self.fpath, '')+"\\"+f)
-                    self.cbre( "Found %d map(s)"%(len(self.mis_files)) )
+                    if self.cbre:
+                        self.cbre( "Found %d map(s)"%(len(self.mis_files)) )
                     if self.debug:
                         print f
                     
         self.done = True
-        self.cbend()
+        if self.cbend:
+            self.cbend()
 
 the_tree = []
 indice = 0

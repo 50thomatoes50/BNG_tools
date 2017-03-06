@@ -1,13 +1,14 @@
 #main file
 
 import os,sys,argparse,tkMessageBox,webbrowser
-import gui,reporter
+import gui,reporter,repo
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--makereport", help="The file which will be processed", type=str)
     group.add_argument("--dispreport", help="Display a report", type=str)
+    group.add_argument("--repo", help="Make a report for a repo mod", type=int)
     parser.add_argument("--no-gui", help="GUI will not be started", action="store_true")
     args = parser.parse_args()
     
@@ -36,6 +37,9 @@ if __name__ == '__main__':
         else:
             #work
             pass
+    elif args.repo:    
+        rp = repo.RepoMod(args.repo)
+        rp.run()
     else:
         l = gui.launcher()
         l.setCallback(reporter.RunReporter)
