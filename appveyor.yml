@@ -111,13 +111,13 @@ artifacts:
     name: BNG_tools-setup64-exe
     
 deploy:
-  appveyor_repo_tag: true
-  tag: $(APPVEYOR_REPO_TAG_NAME)
-  release: bngtool $(APPVEYOR_REPO_TAG_NAME)
+  release: BNG_tools-v$(appveyor_build_version)
+  description: 'Release description'
   provider: GitHub
+  on:
+    appveyor_repo_tag: true
   auth_token:
     secure: ONlgTzuND/IND/s3wgIq9wcQDzjqvww/2RpINuroQIKNFpLuCGhSjcPcICMaY7le
-  artifact: build_folder
   draft: true
   prerelease: true
   force_update: true
