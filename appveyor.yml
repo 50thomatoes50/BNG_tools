@@ -1,5 +1,4 @@
 version: '0.1.0 ({build})'
-appveyor_repo_tag: true
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
@@ -112,6 +111,7 @@ artifacts:
     name: BNG_tools-setup64-exe
     
 deploy:
+  appveyor_repo_tag: true
   tag: $(APPVEYOR_REPO_TAG_NAME)
   release: bngtool $(APPVEYOR_REPO_TAG_NAME)
   provider: GitHub
