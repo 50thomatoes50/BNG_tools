@@ -351,7 +351,10 @@ class MakeReportThread(Thread):
                         if not(mExtFound):
                             msg_list.append( ("error",
                                               "Material <a href='#mat:%s'>%s</a> texture not found = %s (from %s)"%
-                                              (m.name, m.name, bpath, m.source)
+                                                (m.name,
+                                                 m.name,
+                                                 bpath,
+                                                 torque_parser.get_BNGpath(m.source) )
                                             ) )
                     
                     #extention is present in path so check it
