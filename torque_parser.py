@@ -1,5 +1,7 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import re,os
+
 
 class TorqueObject():
     def __init__(self,type,name,parent=None,source=""):
@@ -9,16 +11,16 @@ class TorqueObject():
         self.child=[]
         self.option={}
         self.source = source
-        
+
     def repr(self):
         return "[TorqueObject instance "+self.type+" name="+self.name+"]"
-    
+
     def add_option(self,name,value):
         if name == "internalName":
             self.name = value
         else:
             self.option[name]=value
-        
+
 def counter(obj):
     i=1
     for c in obj.child:
@@ -27,8 +29,8 @@ def counter(obj):
         else:
             i+=1
     return i
-    
-        
+
+
 def count(obj):
     nb=0
     if type(obj) == type([]):
@@ -37,7 +39,7 @@ def count(obj):
         return nb
     elif type(obj) == type(TorqueObject(None,None)):
         return counter(obj)
-        
+
 def get_path(mis_path,p_path):
     if os.name is "nt":
         p_path.replace("/",os.sep)
@@ -45,7 +47,7 @@ def get_path(mis_path,p_path):
         return os.path.split(mis_path)[0] +"\\"+ p_path #relativ
     else:
         return mis_path[0:mis_path.find("levels")] + p_path
-    
+
 def is_BNGpath(fpath):
     """
     is it a path like Beamng whould use???????
@@ -55,13 +57,13 @@ def is_BNGpath(fpath):
             fpath = get_BNGpath(fpath)
         except ValueError:
             return False
-        
+
     fpath = os.path.normpath(fpath)
     a = fpath.split(os.sep)
-    
+
     return a[0]=="art" or a[0]=="levels" or a[0] == "vehicles"
-    
-    
+
+
 def get_BNGpath(fpath):
     """
     get the path like Beamng would use
@@ -69,26 +71,26 @@ def get_BNGpath(fpath):
     """
     fpath = os.path.normpath(fpath)
     a = fpath.split(os.sep)
-    try:
+    if "unpacked" in fpath:
         return os.sep.join(a[a.index("unpacked")+2:])
-    except ValueError:
+    else:
         #if it's not in unpacked for repo
         if "levels" in fpath:
             return os.sep.join(a[a.index("levels"):])
         elif "vehicles" in fpath:
-            return os.sep.join(a[a.index("levels"):])
+            return os.sep.join(a[a.index("vehicles"):])
         elif "art" in fpath:
             return os.sep.join(a[a.index("art"):])
         else:
-            print "ValueError path not valid? (%s)"%(fpath)
-            raise
+            print("ValueError path not valid? (%s)"%(fpath))
+            raise IOError("path not valid? (%s)"%(fpath))
     """
     if not("levels" in p_path) or "./" in p_path or ".\\" in p_path:
         return os.path.dirname(file_path[p_path.find("levels"):]) + os.sep + p_path #relative
     else:
         return p_path[p_path.find("levels"):] """
-    
-        
+
+
 def join_BNGpath(file_path,p_path):
     """
     join the path to get a path like BeamNG would use
@@ -97,21 +99,21 @@ def join_BNGpath(file_path,p_path):
     """
     p_path = os.path.normpath(p_path)
     file_path = os.path.normpath(file_path)
-    
+
     if is_BNGpath(p_path):
         return p_path
     else:
         return os.path.normpath( get_BNGpath(file_path) + os.sep + p_path )
-    
+
     """if not("levels" in p_path) or "./" in p_path or ".\\" in p_path:
         return os.path.dirname(file_path[p_path.find("levels"):]) + os.sep + p_path #relative
     else:
         return p_path[p_path.find("levels"):] """
-    
-    
+
+
 def get_filepath(tree):
     """get every files used by an TorqueObject"""
-    
+
     """ Todo: retrieve the file using the object type instead of brute force checking """
     """if tree.option.has_key("fileName"):
         return tree.option["fileName"]
@@ -136,9 +138,9 @@ def get_filepath(tree):
             return tree.option["shapeName"]
     except KeyError:
         return False
-        
+
     return None
- 
+
 def mission_parser(filename, option=False):
     root=[]
     trace=[]
@@ -161,7 +163,7 @@ def mission_parser(filename, option=False):
                         trace[level].child.append(node)
                     trace.append(node)
                     level+=1
-                    
+
             elif w[0]=="};":
                 level-=1
                 if level >0:
@@ -175,31 +177,31 @@ def mission_parser(filename, option=False):
 
 def disp(node,i,option=False):
     pre = "\t"*i
-    print pre, node.repr()
+    print(pre, node.repr())
     if option:
         for ok in node.option.keys():
-            print pre,"\t%s = '%s';"%(ok,node.option[ok])
+            print(pre,"\t%s = '%s';"%(ok,node.option[ok]))
     for c in node.child:
         disp(c,i+1,option)
 
 
 if __name__ == '__main__':
-    print get_path("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis","art\\map.prefab")
-    
-    print get_path("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis","levels\\Carmageddon\\art\\map.prefab")
+    print(get_path("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis","art\\map.prefab"))
 
-    
+    print(get_path("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis","levels\\Carmageddon\\art\\map.prefab"))
+
+
     """r= mission_parser("map.mis",True)
     disp(r[0],0,True)
-    print count(r)
-    
+    print(count(r))
+
     r=mission_parser("D:\\Users\\Thomas\\Documents\\BeamNG.drive\\mods\\unpacked\\wip.zip\\levels\\Carmageddon\\map.mis")
     disp(r[0],0)
-    print count(r)"""
-    
+    print(count(r))"""
+
     r=mission_parser("C:\\Users\\Administrator\\Documents\\BeamNG.drive\\mods\\unpacked\\IslandOfSpeed.zip\\levels\\Road of Speed\\art\\road\\materials.cs",True)
     disp(r[0],0)
-    
-    print "\n\n"
-    
-    print is_BNGpath("levels/Road of Speed/art/road/road-01_n.dds")
+
+    print("\n\n")
+
+    print(is_BNGpath("levels/Road of Speed/art/road/road-01_n.dds"))

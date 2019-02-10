@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import subprocess,re,os,sys
 from cx_Freeze import setup, Executable
- 
+
 
 try:
     label = subprocess.check_output(["git", "describe", "--always", "--tags"])
@@ -9,7 +10,7 @@ except WindowsError:
     raise Exception("Install git")
 
 splited = label.strip('\n').split('-')
-print splited
+print(splited)
 
 if len(splited)==1:
     tags = splited[0]
@@ -18,7 +19,7 @@ elif len(splited)>1:
     tags = splited[0]
     hotfix = splited[1]
 else:
-    print splited
+    print(splited)
     raise Exception("Unknown")
 
 if tags[0:1] == "v":
@@ -40,11 +41,11 @@ with open("_version.py","w") as f:
     fw("""__version_long__ = "%s hotfix %s"\n"""%(tags ,hotfix))
     fw("""git_hash= "%s" \n"""%(git_hash))
     fw("""git_hash_short= "%s" \n"""%(git_hash_short))
-    
-    
-    
-    
-    
+
+
+
+
+
 base = None
 if sys.platform == "win32":
     #base = "Win32GUI"

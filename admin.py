@@ -2,10 +2,11 @@
 # -*- coding: utf-8; mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
 # vim: fileencoding=utf-8 tabstop=4 expandtab shiftwidth=4
 
-# (C) COPYRIGHT © Preston Landers 2010
+# (C) COPYRIGHT Preston Landers 2010
 # Released under the same license as Python 2.6.5
 
 
+from __future__ import print_function
 import sys, os, traceback, types
 
 def isUserAdmin():
@@ -17,7 +18,7 @@ def isUserAdmin():
             return ctypes.windll.shell32.IsUserAnAdmin()
         except:
             traceback.print_exc()
-            print "Admin check failed, assuming not an admin."
+            print("Admin check failed, assuming not an admin.")
             return False
     elif os.name == 'posix':
         # Check for root on Posix
@@ -48,7 +49,7 @@ def runAsAdmin(cmdLine=None, wait=True):
     #showCmd = win32con.SW_HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
 
-    # print "Running", cmd, params
+    # print("Running", cmd, params)
 
     # ShellExecute() doesn't seem to allow us to fetch the PID or handle
     # of the process, so we can't get anything useful from it. Therefore
@@ -63,10 +64,10 @@ def runAsAdmin(cmdLine=None, wait=True):
                               lpParameters=params)
 
     if wait:
-        procHandle = procInfo['hProcess']    
+        procHandle = procInfo['hProcess']
         obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
         rc = win32process.GetExitCodeProcess(procHandle)
-        #print "Process handle %s returned code %s" % (procHandle, rc)
+        #print("Process handle %s returned code %s" % (procHandle, rc))
     else:
         rc = None
 
@@ -75,11 +76,11 @@ def runAsAdmin(cmdLine=None, wait=True):
 def test():
     rc = 0
     if not isUserAdmin():
-        print "You're not an admin.", os.getpid(), "params: ", sys.argv
+        print("You're not an admin.", os.getpid(), "params: ", sys.argv)
         #rc = runAsAdmin(["c:\\Windows\\notepad.exe"])
         rc = runAsAdmin()
     else:
-        print "You are an admin!", os.getpid(), "params: ", sys.argv
+        print("You are an admin!", os.getpid(), "params: ", sys.argv)
         rc = 0
     x = raw_input('Press Enter to exit.')
     return rc

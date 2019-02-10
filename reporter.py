@@ -1,8 +1,16 @@
 #!/usr/bin/env python
-import sys,os,platform,datetime ,json,webbrowser, tkMessageBox
+from __future__ import print_function
+import sys,os,platform,datetime ,json,webbrowser
+import hashlib
 from threading import Thread
-import gui,torque_parser,_version 
-     
+import gui,torque_parser,_version
+if sys.version_info >= (3,6):
+    from tkinter import messagebox as tkMessageBox
+elif sys.version_info == (2,7):
+    import tkMessageBox
+else:
+    raise RuntimeError("Python version not supported use [2.7, 3.6+], current = "+str(sys.version_info))
+
 
 class CaseInsensitiveDict(dict):
     """Basic case insensitive dict with strings only keys."""
@@ -33,12 +41,12 @@ class CaseInsensitiveDict(dict):
         super(CaseInsensitiveDict, self).__setitem__(k, v)
         self.proxy[k.lower()] = k
 
-    
+
 debug = True
-    
+
 def scan_mis(fpath):
     if debug:
-        print "\n ### scan_mis() ###"
+        print("\n ### scan_mis() ###")
     mis_files =[]
     for root, dirs, files in os.walk(fpath):
         level = root.replace(fpath, '').count(os.sep)
@@ -47,8 +55,8 @@ def scan_mis(fpath):
             if ext == ".mis":
                 mis_files.append(root.replace(fpath, '')+"\\"+f)
                 if debug:
-                    print f
-                
+                    print(f)
+
     return mis_files
 
 class ScanMisThread(Thread):
@@ -64,11 +72,11 @@ class ScanMisThread(Thread):
         self.cbre       = cbre
         self.cbend      = cbend
         self.done       = False
-        
+
     def run(self):
         if self.debug:
-            print "\n ### scan_mis() ###"
-        
+            print("\n ### scan_mis() ###")
+
         for root, dirs, files in os.walk(self.fpath):
             level = root.replace(self.fpath, '').count(os.sep)
             for f in files:
@@ -78,8 +86,8 @@ class ScanMisThread(Thread):
                     if self.cbre:
                         self.cbre( "Found %d map(s)"%(len(self.mis_files)) )
                     if self.debug:
-                        print f
-                    
+                        print(f)
+
         self.done = True
         if self.cbend:
             self.cbend()
@@ -104,19 +112,23 @@ def child_doublon(childs,mis_path,parent):
                 if c.option["shapeName"] == ca.option["shapeName"]:
                     nb+=1
                     realcounter+=1
-            
+
             name = "%s(%s)"%(c.type,os.path.split(c.option["shapeName"])[1])
             id_p = name
             the_tree.append( {"id":id_p,"name":name,"parent":parent,"value":nb} )
             done.append(c.option["shapeName"])
-            
+
             fileName = torque_parser.get_filepath(c)
-            bngpath = os.path.normpath( os.path.dirname(mis_path) + os.sep + fileName )
+            if not torque_parser.is_BNGpath(fileName):
+                bngpath = os.path.normpath( os.path.dirname(mis_path) + os.sep + fileName )
+            else:
+                bngpath = torque_parser.get_BNGpath(fileName )
+            #print(bngpath)
             if not obj_list_used.has_key(bngpath):
                 obj_list_used[bngpath] = {"name": c.name, "type":c.type, "nb_used": nb}
             else:
                 obj_list_used[bngpath]["nb_used"] += nb
-            
+
 
 def child_tree(tree,mis_path,parent=None):
     global the_tree, indice,realcounter
@@ -138,12 +150,12 @@ def child_tree(tree,mis_path,parent=None):
     else:
         id_p = "%s(%s)"%(tree.type,tree.name)
         name = id_p
-        
+
     if parent == None:
         the_tree.append( {"id":id_p,"name":name} )
     else:
         the_tree.append( {"id":id_p,"name":name,"parent":parent,"value":len(tree.child)+1} )
-    
+
     fileName = torque_parser.get_filepath(tree)
     if fileName:
         if type(fileName) is type(''):
@@ -158,11 +170,11 @@ def child_tree(tree,mis_path,parent=None):
                 else:
                     obj_list_used[f]["nb_used"] += 1
         else:
-            print "filename type =="+str(type(fileName))
+            print("filename type =="+str(type(fileName)))
     if fileName == False:
         msg_list.append( ("warning","Object %s(%s) have a missing property"%(tree.name,tree.type)) )
-        
-        
+
+
     if tree.type == "Prefab":
         if torque_parser.is_BNGpath( tree.option["fileName"] ):
             path = tree.option["fileName"]
@@ -173,8 +185,8 @@ def child_tree(tree,mis_path,parent=None):
         if len(tree.child):
             child_doublon(tree.child,mis_path,id_p)
         #for c in tree.child:
-            
-    
+
+
 
 
 def make_tree(tree,mis_path):
@@ -192,25 +204,25 @@ def make_report(fname):
     try:
         r = torque_parser.mission_parser(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname,True)
     except:
-        print "parse error"
+        print("parse error")
         return
     report_step=1
     objnb = torque_parser.count(r)
-    
+
     tree_str = make_tree(r[0],os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\" + fname)
-    
+
     obj_list_used_html = ""
     for k in obj_list_used.keys():
         obj_list_used_html += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%i</td></tr>\n"%(k,"_",obj_list_used[k].type,obj_list_used[k]["nb_used"])
-    
+
     msg_list_html=""
     for i in msg_list:
         msg_list_html += "<tr class='.%s'><td>%s</td><tr>\n"%(i[0],i[1])
-    
-    
+
+
     now = datetime.datetime.now()
     reportName = "report_"+os.path.split(fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
-    
+
     report_step = 2
     with open("theme\\default\\index.html", "r") as s:
         with open(reportName, "w") as d:
@@ -230,12 +242,12 @@ def make_report(fname):
                     tmp = tmp.replace("%hash_long%",_version.git_hash)
                 if "%version_number%" in l:
                     tmp = tmp.replace("%version_number%",_version.__version_long__)
-                
+
                 d.write(tmp)
     report_step = 3
     webbrowser.open(reportName)
     os.system("pause")
-    
+
 
 class MakeReportThread(Thread):
     """ a Thread class that make a ruport on the map `fname`
@@ -244,7 +256,8 @@ class MakeReportThread(Thread):
 
     def __init__(self, fname,
                  extinfo={},
-                 origin_path = os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\"
+                 origin_path = os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\",
+                 fileHash = False
                  ):
         Thread.__init__(self)
         self.fname=fname
@@ -252,24 +265,42 @@ class MakeReportThread(Thread):
         self.step=0
         self.error=""
         self.origin_path = origin_path
-        
+        self.fileHash = fileHash
+
+        #for gui
+        self.tasklist = []
+        self.tasklist.append("Parsing mission file")
+        if self.fileHash:
+            self.tasklist.append("File hash")
+        self.tasklist.append("Exporting Tree Object and counting")
+        self.tasklist.append("Writing report")
+
+        self.progress = 0
+
     def run(self):
+        global the_tree, indice, realcounter, obj_list_used, msg_list
+
+        the_tree = []
+        indice = 0
+        realcounter = 0
+        obj_list_used = CaseInsensitiveDict()
+        msg_list=[]
         #try:
-        now = datetime.datetime.now()      
+        now = datetime.datetime.now()
         #reportName = "report_"+os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".html"
         reportName = os.path.split(self.fname)[1]+"_"+now.strftime("%Y-%m-%d_%H.%M.%S")+".btr"
-        
-        
+
+
         r = torque_parser.mission_parser(self.origin_path + self.fname,True)
         """except:
-            print "parse error"
+            print("parse error")
             return"""
         self.step=1
         objnb = torque_parser.count(r)
-        
+
         tree_str = make_tree(r[0],self.origin_path + self.fname)
-        
-        
+
+
         data = {}
         data['info'] = {"version":
                             {"report":1,
@@ -284,12 +315,12 @@ class MakeReportThread(Thread):
                         "author":"",
                         "name":self.fname,
                         "extinfo":self.extinfo
-                        }        
-        
+                        }
+
         map_dir = os.path.dirname(self.origin_path + self.fname)
-        
+
         mat=[]
-        
+
         for root, dirs, files in os.walk( map_dir , topdown=True):
             for name in files:
                 fpath = os.path.join(root, name)
@@ -305,7 +336,7 @@ class MakeReportThread(Thread):
                     elif name.endswith(".json"):
                         if name == "info.json" and root == map_dir:
                             obj_list_used[bngpath] = {"type": "JSON (map info)","nb_used": 1}
-                            with open(fpath) as data_file:    
+                            with open(fpath) as data_file:
                                 data['info']['info'] = json.load(data_file)
                                 for ip in data['info']['info']['previews']:
                                     if not obj_list_used.has_key(bngpath):
@@ -321,8 +352,53 @@ class MakeReportThread(Thread):
                         msg_list.append( ("warning","Mesh cache shouldn't be packed in the mod (%s)"%(bngpath) ) )
                     else:
                         obj_list_used[bngpath] = {"type": "...","nb_used": 0}
-        
-            
+
+        self.step += 1
+
+        print("fileHash",self.fileHash)
+        if self.fileHash:
+
+            print("HASH calculating")
+            #http://stackoverflow.com/questions/22058048/hashing-a-file-in-python
+            BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+            i=0
+            total = len(obj_list_used)
+            originalpath = self.origin_path + self.fname
+
+            path=None
+            for fpb in obj_list_used: #for diferent type compatibility
+                if fpb in originalpath:
+                    path = originalpath[0:originalpath.find( fpb )]
+                    break
+
+            if not path:
+                print("couldn't find the path")
+                raise Exception("couldn't find the path to files for hash calculation")
+
+            #g = gui.loading_popup("File Hash", "determinate", ".")
+            for fpb in obj_list_used:
+                sha256 = hashlib.sha256()
+
+                try:
+                    with open( path + os.sep + fpb, 'rb') as f:
+                        while True:
+                            fhdata = f.read(BUF_SIZE)
+                            if not fhdata:
+                                break
+                            sha256.update(fhdata)
+
+                        obj_list_used[fpb]["hash_sha256"] = sha256.hexdigest()
+                except IOError:
+                    print("couldn't hash %s"%(fpb))
+
+                i+=1
+
+                self.progress = i/float(total) *100
+                #g.set_progress( i/float(total) )
+                #g.set_lbl( "%d/%d  %.2f"%(i, total, i/float(total) ) )
+            self.step += 1
+        self.progress=0
+
         for m in mat:
             tex_opt = []
             if m.type == "CubemapData":
@@ -333,7 +409,7 @@ class MakeReportThread(Thread):
                 tex_opt = []
             else:
                 msg_list.append( ("error","Material script object type unknown : %s in %s"%(m.type,m.source) ) )
-                
+
             for top in tex_opt:
                 if top in m.option.keys():
                     bpath = torque_parser.join_BNGpath( os.path.dirname(m.source), m.option[top] )
@@ -347,7 +423,7 @@ class MakeReportThread(Thread):
                                 obj_list_used[bpath]["nb_used"] += 1
                                 mExtFound = True
                                 break
-                            
+
                         if not(mExtFound):
                             msg_list.append( ("error",
                                               "Material <a href='#mat:%s'>%s</a> texture not found = %s (from %s)"%
@@ -356,7 +432,7 @@ class MakeReportThread(Thread):
                                                  bpath,
                                                  torque_parser.get_BNGpath(m.source) )
                                             ) )
-                    
+
                     #extention is present in path so check it
                     else:
                         if bpath in obj_list_used.keys():
@@ -367,32 +443,32 @@ class MakeReportThread(Thread):
                                               "Material <a href='#mat:%s'>%s</a> texture not found = %s (from %s)"%
                                               (m.name, m.name, bpath, m.source)
                                             ) )
-                        
+
         #Unused Object!!!!!!!!!!!!!!!!!!!!
-        unused_obj = 0                
+        unused_obj = 0
         for o in obj_list_used.keys():
             if obj_list_used[o]["nb_used"] == 0:
                 unused_obj +=1
-                
+
         if unused_obj:
             msg_list.append( ("warning","There is %d unused object"%(unused_obj) ) )
-        
-        self.step = 2
-        
+
+        self.step += 1
+
         #tranform every TorqueObject in dict so python can serialiate them in json
         mat_json=[]
         for m in mat:
             mat_json.append(m.__dict__)
-        
-        data['report']= {"tree":tree_str,
+
+        data['report'] = {"tree":tree_str,
                  "objCount":realcounter,
                  "res":obj_list_used,
                  "msg":msg_list,
                  "mat":mat_json}
-        
+
         with open(reportName, 'w') as outfile:
             json.dump(data, outfile, indent=4)
-        
+
         """with open("theme\\default\\index.html", "r") as s:
             with open(reportName, "w") as d:
                 for l in s:
@@ -415,19 +491,19 @@ class MakeReportThread(Thread):
                         tmp = tmp.replace("%obj_table%",obj_list_used_html)
                     if "%msg_table%" in l:
                         tmp = tmp.replace("%msg_table%",msg_list_html)
-                        
-                    
+
+
                     d.write(tmp)
-                    
+
                     """
-    
-        self.step = 3
+
+        self.step += 1
         #webbrowser.open(reportName)
         #webbrowser.open( "%s\\theme\\default\\json.html?file=../../%s&fake=file.html"%(os.getcwd(),reportName) )
         with open("redirect.html","w") as f:
             f.write("<html><script>window.location.href = 'theme/default/json.html?file=../../%s';</script></html>"%(reportName))
             webbrowser.open("redirect.html")
-            
+
 def RunReporter():
     a = gui.loading_popup("Scanning ...", "indeterminate", "Scanning...")
     #fichier = scan_mis(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\")
@@ -443,54 +519,56 @@ def RunReporter():
             "Error",
             "The scan may have gone wrong.\nSome files can be missing in the list."
         )
-    
+
     c = gui.choose(fichier)
     c.mainloop()
     if(c.quit_val):
         c.destroy()
     else:
         c.destroy()
-        print "Mission files selcted :", fichier[c.var], "(",c.var,")"
+        print("Mission files selcted :", fichier[c.var], "(",c.var,")")
         #make_report(fichier[c.var])
         #os.system("pause")
-        th = MakeReportThread(fichier[c.var])
+        th = MakeReportThread(fichier[c.var], fileHash=c.hash.get())
         th.isAlive
         c = gui.reportWorking(fichier[c.var],th)
         c.mainloop()
 
 if __name__ == '__main__':
     if platform.system() != "Windows":
-        print "You aren't running Python on Windows\n This script may not work"
+        print("You aren't running Python on Windows\n This script may not work")
         tkMessageBox.showerror (
             "Error",
             "You aren't running Python on Windows\n This script may not work"
         )
         sys.exit(-1)
-    #print os.environ
+    #print(os.environ)
     if not(os.path.exists(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked")):
         tkMessageBox.showerror (
             "Error",
             "BeamNG.drive\\mods\\unpacked !!!!!!!!!!"
         )
         sys.exit(-1)
-        
-    fichier = scan_mis(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\")
-    
+
+
+    RunReporter()
+
+    """fichier = scan_mis(os.environ['USERPROFILE']+"\\Documents\\BeamNG.drive\\mods\\unpacked\\")
+
     c = gui.choose(fichier)
     c.mainloop()
     if(c.quit_val):
         c.destroy()
         sys.exit(0)
     c.destroy()
-    print "Mission files selcted :", fichier[c.var], "(",c.var,")"
+    print("Mission files selcted :", fichier[c.var], "(",c.var,")")
     #make_report(fichier[c.var])
     #os.system("pause")
     th = MakeReportThread(fichier[c.var])
     th.isAlive
     c = gui.reportWorking(fichier[c.var],th)
-    c.mainloop()
+    c.mainloop()"""
 
-    
-    
-    
-    
+
+
+
